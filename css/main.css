@@ -1,0 +1,26 @@
+#intro {
+  font-size: 30px;
+  position: absolute;
+  top: 45%;
+  left: 0;
+  right: 0;
+  color: #fff;
+  background-color: rgba(0, 0, 0, 0.5);
+  padding: 1em;
+  text-align: center;
+  font-family: sans-serif;
+  letter-spacing: 0.2em;
+  pointer-events: none;
+  animation-name: fade-out;
+  animation-duration: 2s;
+  animation-delay: 3s;
+  animation-fill-mode: forwards;
+}
+@keyframes fade-out {
+  0% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}

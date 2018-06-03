@@ -11,6 +11,7 @@ const slice = new Slice();
 const gui = new dat.GUI();
 gui.add(slice, 'steps', 1, 50);
 gui.add(slice, 'rotate', 1, 50);
+gui.add(slice, 'save');
 
 img.src = './img/beach-calm-clouds-378271.jpg';
 img.addEventListener('load', slice.init);
@@ -23,6 +24,14 @@ window.addEventListener('resize', () => {
 function Slice() {
   this.steps = 10;
   this.rotate = 10;
+
+  this.save = () => {
+    canvasToImage('canvas', {
+      name: 'circle-slice-' + Date.now(),
+      type: 'jpg',
+      quality: 1
+    });
+  };
 
   const draw = () => {
     let area = { x: 0, y: 0, width: canvas.width, height: canvas.height };
