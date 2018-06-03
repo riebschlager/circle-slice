@@ -13,7 +13,7 @@ gui.add(slice, 'steps', 1, 50);
 gui.add(slice, 'rotate', 1, 50);
 gui.add(slice, 'save');
 
-img.src = './img/beach-calm-clouds-378271.jpg';
+img.src = './img/sea.jpg';
 img.addEventListener('load', slice.init);
 
 window.addEventListener('resize', () => {
