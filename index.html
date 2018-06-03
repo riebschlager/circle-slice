@@ -6,12 +6,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <script src="./js/gui/dat.gui.min.js"></script>
+    <script src="./js/fit.min.js"></script>
     <link rel="stylesheet" href="./css/reset.css">
     <link rel="stylesheet" href="./css/main.css">
     <title>Circle Slice</title>
 </head>
 
-<body>
+<body ondrop="dropHandler(event);" ondragover="dragOverHandler(event);">
     <canvas id="canvas"></canvas>
     <script src="./js/main.js"></script>
 </body>
