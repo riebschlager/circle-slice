@@ -10,7 +10,7 @@ const slice = new Slice();
 
 const gui = new dat.GUI();
 gui.add(slice, 'steps', 1, 50);
-gui.add(slice, 'rotate', 1, 50);
+gui.add(slice, 'rotate', -50, 50);
 gui.add(slice, 'save');
 
 img.src = './img/sea.jpg';
