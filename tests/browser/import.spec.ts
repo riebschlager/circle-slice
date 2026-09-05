@@ -58,7 +58,7 @@ async function dropFile(
 test('bundled example loads on mount and is visible', async ({ page }) => {
   await page.goto('./');
   await waitForStatus(page, /Classic/);
-  await waitForStatus(page, /800 × 600/);
+  await waitForStatus(page, /1600 × 1199/);
   const canvas = page.locator('canvas').first();
   await expect(canvas).toBeVisible();
   const width = await canvas.evaluate((c: HTMLCanvasElement) => c.width);
@@ -312,7 +312,7 @@ test('example load failure does not prevent local image import', async ({
   page,
 }) => {
   // Intercept and block the bundled example.
-  await page.route('**/examples/quadrants.png', (route) => route.abort());
+  await page.route('**/examples/sea.jpg', (route) => route.abort());
   await page.goto('./');
   // Status will not show "Classic" (example failed).
   await expect(page.locator('[role="status"]'))

@@ -19,7 +19,7 @@ test('built shell and bundled example load directly and after refresh under the 
     );
     const example = page.getByRole('img', { name: /Circle Slice effect/ });
     await expect(example).toBeVisible();
-    await expect(page.getByRole('status')).toContainText('800 × 600');
+    await expect(page.getByRole('status')).toContainText('1600 × 1199');
     expect(
       await example.evaluate((canvas: HTMLCanvasElement) => canvas.width),
     ).toBeGreaterThan(0);

@@ -137,7 +137,7 @@ export function Editor() {
     latestId.current = Math.max(latestId.current, id);
     dispatch({ type: 'IMPORT_START', requestId: id, isExample: true });
     const isLatest = () => latestId.current === id;
-    const url = `${import.meta.env.BASE_URL}examples/quadrants.png`;
+    const url = `${import.meta.env.BASE_URL}examples/sea.jpg`;
     void importExample(url, id, isLatest).then((outcome) => {
       if (!outcome) return;
       if (outcome.ok) {
@@ -292,7 +292,9 @@ export function Editor() {
     // Start acquiring an independent source before replacement can dispose the preview.
     const sourceFile =
       image.file ??
-      new File([image.sourceBlob!], 'example.png', { type: 'image/png' });
+      new File([image.sourceBlob!], 'example', {
+        type: image.sourceBlob!.type,
+      });
     const sourcePromise = decodeImageFile(sourceFile).then(
       ({ bitmap }) => bitmap,
     );

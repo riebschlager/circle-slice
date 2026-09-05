@@ -113,7 +113,7 @@ test('Escape cancels numeric edits, Custom selects, ratios link, invalid errors 
   const height = page.getByLabel('Artwork height in pixels');
   await width.fill('123');
   await width.press('Escape');
-  await expect(width).toHaveValue('800');
+  await expect(width).toHaveValue('1600');
   await page.getByText('1∶1', { exact: true }).click();
   await width.fill('400');
   await width.press('Enter');
@@ -164,7 +164,7 @@ test('picker supersedes a stalled bundled example', async ({ page }) => {
   const gate = new Promise<void>((resolve) => {
     release = resolve;
   });
-  await page.route('**/examples/quadrants.png', async (route) => {
+  await page.route('**/examples/sea.jpg', async (route) => {
     await gate;
     await route.continue();
   });

@@ -85,7 +85,7 @@ test('Reset effect and Download are disabled before image loads', async ({
   page,
 }) => {
   // Block the example so we can observe the disabled state.
-  await page.route('**/examples/quadrants.png', (route) => route.abort());
+  await page.route('**/examples/sea.jpg', (route) => route.abort());
   await page.goto('./');
   // Give enough time for loading to settle into error.
   await page.waitForTimeout(1500);

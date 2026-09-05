@@ -20,21 +20,21 @@ Support local JPEG, PNG, and WebP. PNG is the default export; JPEG uses quality 
 
 ## Before and intended after
 
-| Behavior       | Original app observed/read in M0                          | Planned release                                                                                    |
-| -------------- | --------------------------------------------------------- | -------------------------------------------------------------------------------------------------- |
-| Initial image  | `img/sea.jpg`, provenance unresolved                      | Locally bundled generated `quadrants.png` fixture/example until a documented replacement is chosen |
-| Composition    | Canvas follows viewport; resizing changes crop and radius | Source-sized artwork, explicit size controls; stable across window changes                         |
-| Controls       | dat.GUI `steps`, `rotate`, `save` overlay                 | Labeled native controls, persistent Open image, Reset, Download                                    |
-| Rendering      | Self-scheduling loop; each load starts another chain      | Invalidate when dirty; at most one queued frame; no continuing idle frames                         |
-| Input          | Drop + FileReader; no picker or visible validation        | Shared picker/drop pipeline with validation, stale-result disposal, recoverable errors             |
-| Export         | Current viewport, JPEG quality 1, timestamp filename      | Separate full-source render at explicit dimensions; PNG or JPEG                                    |
-| Classic pixels | Original draw order and geometry                          | Equivalent at identical source, artwork dimensions, and settings                                   |
+| Behavior       | Original app observed/read in M0                          | Planned release                                                                           |
+| -------------- | --------------------------------------------------------- | ----------------------------------------------------------------------------------------- |
+| Initial image  | `img/sea.jpg`, provenance unresolved                      | Locally bundled `sea.jpg` example, downscaled to 1600 × 1199; provenance still unresolved |
+| Composition    | Canvas follows viewport; resizing changes crop and radius | Source-sized artwork, explicit size controls; stable across window changes                |
+| Controls       | dat.GUI `steps`, `rotate`, `save` overlay                 | Labeled native controls, persistent Open image, Reset, Download                           |
+| Rendering      | Self-scheduling loop; each load starts another chain      | Invalidate when dirty; at most one queued frame; no continuing idle frames                |
+| Input          | Drop + FileReader; no picker or visible validation        | Shared picker/drop pipeline with validation, stale-result disposal, recoverable errors    |
+| Export         | Current viewport, JPEG quality 1, timestamp filename      | Separate full-source render at explicit dimensions; PNG or JPEG                           |
+| Classic pixels | Original draw order and geometry                          | Equivalent at identical source, artwork dimensions, and settings                          |
 
 M1 provides a static example shell with no editor controls yet; [desktop](screenshots/m1-desktop.png) and [narrow](screenshots/m1-mobile.png) captures document this transitional state. [M0 validation](validation.md) and the [reference guide](../tests/reference/README.md) distinguish measured legacy evidence from future acceptance criteria.
 
 ## Assets and historical code
 
-The ocean photo was added in commit `0ab5c5f8cd11cc3514ce7cd255f38c45c99c0171` on June 2, 2018 with message `add img folder`. The commit identifies who added the file, not its photographer, source URL, or redistribution terms. No project license or asset credit is present in the reviewed files/history. Its SHA-256 is recorded in the reference manifest. Keep it only as the existing legacy comparison input for now; do not copy it or its derived reference captures into the new release assets. Use the newly created geometric fixture as the initial modernized example. See [fixture provenance](../tests/fixtures/README.md). No project license or third-party credit has been invented.
+The ocean photo was added in commit `0ab5c5f8cd11cc3514ce7cd255f38c45c99c0171` on June 2, 2018 with message `add img folder`. The commit identifies who added the file, not its photographer, source URL, or redistribution terms. No project license or asset credit is present in the reviewed files/history. Its SHA-256 is recorded in the reference manifest. It served as the legacy comparison input through M0–M7, when the generated geometric fixture was used as the modernized example instead. On September 5, 2026 the user directed that the ocean photo become the bundled example. `public/examples/sea.jpg` is a downscaled re-encode (1600 × 1199, JPEG quality 82, 462 KB) of the 1920 × 1439 original, sized to stay under the 2 MP preview bound; it ships in `dist/`. `img/sea.jpg` is unchanged, so the reference manifest hash and legacy parity captures still resolve. Its provenance and the project license remain unresolved, so this is a deliberate decision to ship an asset without documented redistribution terms, not a resolution of the question. Derived reference captures still stay out of release assets. See [fixture provenance](../tests/fixtures/README.md). No project license or third-party credit has been invented.
 
 `tests/reference/legacy/main.js` and `fit.min.js` are byte-for-byte copies from `5162ee4`. The fit helper retains `Copyright (C) 2014 Justin Windle, http://soulwire.co.uk`; that notice alone is not a newly established license grant. The extracted test renderer preserves its source attribution. Keep this historical material test-only and retain notices when removing production vendors later.
 
@@ -46,7 +46,7 @@ The `.pde` files under `p5/` are Processing/Java sketches, **not browser p5.js**
 
 `renderClassic` receives a borrowed source, its full decoded dimensions, artwork size, settings, and a context. It computes cover geometry once, resets drawing state, preserves the caller's context with balanced save/restore, and never schedules work. Supply a fresh/unclipped context; an inherited clip cannot be removed by resetting the transform. The same renderer can later draw a full-resolution export surface.
 
-`createPreview` owns a ResizeObserver, a re-armed DPR media query, and at most one pending animation frame. Updates copy the latest settings/dimensions and borrow the latest source. Disposal disconnects both observers, cancels the frame, drops references, and releases the backing surface. The caller owns image disposal. `ExamplePreview` manages the bundled image and guards asynchronous completion across React StrictMode cleanup/remount. The 800 × 600 example is already within preview limits; arbitrary input decoding and bounded source caches remain M3. Canvas backing size is independent of artwork size and capped at 2 MP / DPR 2. Subpixel padding absorbs backing-size rounding with one uniform render transform.
+`createPreview` owns a ResizeObserver, a re-armed DPR media query, and at most one pending animation frame. Updates copy the latest settings/dimensions and borrow the latest source. Disposal disconnects both observers, cancels the frame, drops references, and releases the backing surface. The caller owns image disposal. `ExamplePreview` manages the bundled image and guards asynchronous completion across React StrictMode cleanup/remount. The 1600 × 1199 example is within preview limits; it was downscaled from the 1920 × 1439 original specifically to stay under the 2 MP bound, because unlike local imports the example's decoded source bitmap is not reduced after decoding. Arbitrary input decoding and bounded source caches remain M3. Canvas backing size is independent of artwork size and capped at 2 MP / DPR 2. Subpixel padding absorbs backing-size rounding with one uniform render transform.
 
 ## Deployment and delivery architecture
 

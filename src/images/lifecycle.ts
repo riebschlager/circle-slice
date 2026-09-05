@@ -121,7 +121,7 @@ export async function importExample(
     sourceBlob = blob;
     if (!isLatest()) return null;
     const result = await decodeImageFile(
-      new File([blob], 'example.png', { type: blob.type }),
+      new File([blob], 'example', { type: blob.type }),
     );
     bitmap = result.bitmap;
     sourceSize = result.sourceSize;

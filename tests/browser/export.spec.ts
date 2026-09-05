@@ -14,7 +14,7 @@ test('Download button is initially disabled while example loads', async ({
   page,
 }) => {
   // Block the example so we can observe the disabled state.
-  await page.route('**/examples/quadrants.png', (route) => route.abort());
+  await page.route('**/examples/sea.jpg', (route) => route.abort());
   await page.goto('./');
   await page.waitForTimeout(800);
 
@@ -252,7 +252,7 @@ test('Export format radio buttons are disabled when no image is loaded', async (
   page,
 }) => {
   // Block the example so no image loads.
-  await page.route('**/examples/quadrants.png', (route) => route.abort());
+  await page.route('**/examples/sea.jpg', (route) => route.abort());
   await page.goto('./');
   await page.waitForTimeout(1500);
 

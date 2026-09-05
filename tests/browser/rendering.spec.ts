@@ -244,7 +244,7 @@ test('viewport and DPR change only preview resolution, preserving the compositio
   await modules(page);
   await page.setViewportSize({ width: 1280, height: 800 });
   await page.goto('./');
-  await expect(page.getByRole('status')).toContainText('800 × 600');
+  await expect(page.getByRole('status')).toContainText('1600 × 1199');
   const canvas = page.locator('canvas');
   await expect
     .poll(() => canvas.evaluate((c: HTMLCanvasElement) => c.width))
@@ -272,10 +272,14 @@ test('viewport and DPR change only preview resolution, preserving the compositio
       const sizingURL = './__test/render/sizing.ts';
       const { renderClassic } = await import(/* @vite-ignore */ classicURL);
       const { previewSurface } = await import(/* @vite-ignore */ sizingURL);
-      const image = new Image();
-      image.src = './examples/quadrants.png';
-      await image.decode();
-      const artwork = { width: 800, height: 600 };
+      // Decode exactly as the app does: a JPEG resampled through
+      // createImageBitmap and through HTMLImageElement are not bit-identical.
+      const blob = await (await fetch('./examples/sea.jpg')).blob();
+      const image = await createImageBitmap(blob, {
+        resizeQuality: 'high',
+        imageOrientation: 'from-image',
+      });
+      const artwork = { width: 1600, height: 1199 };
       const surface = previewSurface(
         artwork,
         c.parentElement!.getBoundingClientRect(),
@@ -304,7 +308,7 @@ test('viewport and DPR change only preview resolution, preserving the compositio
     });
     expect(check.equal, JSON.stringify(check)).toBe(true);
     expect(check.pixels).toBeLessThanOrEqual(2_000_000);
-    await expect(page.getByRole('status')).toContainText('800 × 600');
+    await expect(page.getByRole('status')).toContainText('1600 × 1199');
   }
   await session.send('Emulation.setDeviceMetricsOverride', {
     width: 1280,

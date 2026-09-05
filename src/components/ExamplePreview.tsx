@@ -11,7 +11,7 @@ export function ExamplePreview() {
     let active = true;
     const preview = createPreview(canvas.current!, container.current!);
     const image = new Image();
-    image.src = `${import.meta.env.BASE_URL}examples/quadrants.png`;
+    image.src = `${import.meta.env.BASE_URL}examples/sea.jpg`;
     void image
       .decode()
       .then(() => {
@@ -48,7 +48,7 @@ export function ExamplePreview() {
         <canvas
           ref={canvas}
           role="img"
-          aria-label="Geometric example with the Classic effect: 10 slices, 10 degrees per slice, 800 by 600 pixels"
+          aria-label="Ocean photograph with the Classic effect: 10 slices, 10 degrees per slice, 1600 by 1199 pixels"
         />
       </div>
       <figcaption>
