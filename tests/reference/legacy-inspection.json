@@ -1,0 +1,34 @@
+{
+  "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/151.0.7922.34 Safari/537.36",
+  "viewport": [
+    1280,
+    800
+  ],
+  "canvas": [
+    1280,
+    800
+  ],
+  "dpr": 1,
+  "steps": 10,
+  "rotate": 10,
+  "source": [
+    1920,
+    1439
+  ],
+  "framesDuring500msIdle": 40,
+  "controls": [
+    "steps",
+    "rotate",
+    "save"
+  ],
+  "afterResize": {
+    "viewport": [
+      360,
+      640
+    ],
+    "canvas": [
+      360,
+      640
+    ]
+  }
+}

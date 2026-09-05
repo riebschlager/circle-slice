@@ -1,5 +1,7 @@
 # Circle Slice
 
+[Modernization work plan](MODERNIZATION_PLAN.md)
+
 ### [Try it out!](https://riebschlager.github.io/circle-slice/)
 
 ![](https://i.imgur.com/jTBJ1Gt.jpg)

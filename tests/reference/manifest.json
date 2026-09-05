@@ -1,0 +1,1111 @@
+{
+  "capturedAt": "2026-09-05T17:07:33.270Z",
+  "legacyRevision": "5162ee4",
+  "environment": {
+    "playwright": "1.62.1",
+    "browser": "151.0.7922.34",
+    "platform": "darwin",
+    "arch": "arm64",
+    "release": "25.6.0",
+    "deviceScaleFactor": 1
+  },
+  "tolerance": "Zero: exact PNG bytes in the recorded environment. Cross-engine comparisons are not established by M0.",
+  "sources": {
+    "tests/reference/legacy/main.js": "569f83f83b2e349944f212c2a34ab5d47811b428e17de16bdf0bd4eabea1d403",
+    "tests/reference/legacy/fit.min.js": "18d6b10186e7792b8a480ad58d251ecc1813d7834688d842ec3795add1d336aa",
+    "tests/reference/render.js": "801d9ba13e302295d38a8df76994f20d17d560e19a79c6ff502718b9bb3c3d6a",
+    "tests/reference/fixtures.js": "23e44f9f675d9dd390fab9fb0219d02c1e7c043a83ab423466ac8bb70a1fcb4a",
+    "img/sea.jpg": "930b2c543e93306dd26b1a0daab542d41e4ede577c01f1956dff2a2acb988bda",
+    "tests/fixtures/quadrants.png": "1a478f26ea2cc3b228b800b31821584cee775396a4efc920507f768890e440a9",
+    "tests/fixtures/transparent.png": "d5f844c4ddfe00e394f5faf186cfb44d32ea9aa7e62f2a5496da98031c8a9445",
+    "tests/fixtures/portrait.png": "ebda4c11381091b68d71a1ff51ee8e28961f32cf9c6d5e6e49fac8d395a85e91"
+  },
+  "sheets": [
+    "sea-contact-sheet.png",
+    "quadrants-contact-sheet.png",
+    "transparent-contact-sheet.png",
+    "portrait-contact-sheet.png"
+  ],
+  "cases": [
+    {
+      "id": "sea-480x480-n1-a0",
+      "source": "sea",
+      "width": 480,
+      "height": 480,
+      "steps": 1,
+      "rotate": 0,
+      "sha256": "359b7e4728d0571c78a60ff4f687be90dba0f3f07c9349b60a9ec7ab4a9cca35",
+      "oracleMatch": "exact PNG bytes"
+    },
+    {
+      "id": "sea-480x480-n1-a-35",
+      "source": "sea",
+      "width": 480,
+      "height": 480,
+      "steps": 1,
+      "rotate": -35,
+      "sha256": "f8f2308c2d23043900eb595850da88df0ce75cf01c908901c0f16307e03b416e",
+      "oracleMatch": "exact PNG bytes"
+    },
+    {
+      "id": "sea-480x480-n1-a10",
+      "source": "sea",
+      "width": 480,
+      "height": 480,
+      "steps": 1,
+      "rotate": 10,
+      "sha256": "7774d3d39437737ce5f713e62dbdb8c9c114e6aa30bd7feb0b3f95169f258908",
+      "oracleMatch": "exact PNG bytes"
+    },
+    {
+      "id": "sea-480x480-n10-a0",
+      "source": "sea",
+      "width": 480,
+      "height": 480,
+      "steps": 10,
+      "rotate": 0,
+      "sha256": "359b7e4728d0571c78a60ff4f687be90dba0f3f07c9349b60a9ec7ab4a9cca35",
+      "oracleMatch": "exact PNG bytes"
+    },
+    {
+      "id": "sea-480x480-n10-a-35",
+      "source": "sea",
+      "width": 480,
+      "height": 480,
+      "steps": 10,
+      "rotate": -35,
+      "sha256": "0d7592956429c7b6e17aad3119ebfaaded1e08299ca0273b6e304afbf9b91e6d",
+      "oracleMatch": "exact PNG bytes"
+    },
+    {
+      "id": "sea-480x480-n10-a10",
+      "source": "sea",
+      "width": 480,
+      "height": 480,
+      "steps": 10,
+      "rotate": 10,
+      "sha256": "b7ff77b6a7054bb9d73c7e1e5a1f21fdc484cde15bd933d995ea9ce772031203",
+      "oracleMatch": "exact PNG bytes"
+    },
+    {
+      "id": "sea-480x480-n50-a0",
+      "source": "sea",
+      "width": 480,
+      "height": 480,
+      "steps": 50,
+      "rotate": 0,
+      "sha256": "359b7e4728d0571c78a60ff4f687be90dba0f3f07c9349b60a9ec7ab4a9cca35",
+      "oracleMatch": "exact PNG bytes"
+    },
+    {
+      "id": "sea-480x480-n50-a-35",
+      "source": "sea",
+      "width": 480,
+      "height": 480,
+      "steps": 50,
+      "rotate": -35,
+      "sha256": "13947792d2d2e203559fa6e0ae94271cba7a8f3167ee54fa6a29584456acfd42",
+      "oracleMatch": "exact PNG bytes"
+    },
+    {
+      "id": "sea-480x480-n50-a10",
+      "source": "sea",
+      "width": 480,
+      "height": 480,
+      "steps": 50,
+      "rotate": 10,
+      "sha256": "0ca3f01e1957dfb98fb8558789cf89d09bb374823a5feb77929eb1604b34f2ed",
+      "oracleMatch": "exact PNG bytes"
+    },
+    {
+      "id": "sea-640x360-n1-a0",
+      "source": "sea",
+      "width": 640,
+      "height": 360,
+      "steps": 1,
+      "rotate": 0,
+      "sha256": "7bfa8af57b4f5ab107af1bca4ef00ef6db59b8abacef81ea81a3dbcdfa7ded36",
+      "oracleMatch": "exact PNG bytes"
+    },
+    {
+      "id": "sea-640x360-n1-a-35",
+      "source": "sea",
+      "width": 640,
+      "height": 360,
+      "steps": 1,
+      "rotate": -35,
+      "sha256": "91d297ae0d71d7113025e103c9cd9ab9ec09b302a2a4932fc01550cd15ff8690",
+      "oracleMatch": "exact PNG bytes"
+    },
+    {
+      "id": "sea-640x360-n1-a10",
+      "source": "sea",
+      "width": 640,
+      "height": 360,
+      "steps": 1,
+      "rotate": 10,
+      "sha256": "af6ff22f9611781f089376906f8349faec4b4391ce6881c39b949d07f7f24f62",
+      "oracleMatch": "exact PNG bytes"
+    },
+    {
+      "id": "sea-640x360-n10-a0",
+      "source": "sea",
+      "width": 640,
+      "height": 360,
+      "steps": 10,
+      "rotate": 0,
+      "sha256": "7bfa8af57b4f5ab107af1bca4ef00ef6db59b8abacef81ea81a3dbcdfa7ded36",
+      "oracleMatch": "exact PNG bytes"
+    },
+    {
+      "id": "sea-640x360-n10-a-35",
+      "source": "sea",
+      "width": 640,
+      "height": 360,
+      "steps": 10,
+      "rotate": -35,
+      "sha256": "0956a37fe4a56944636548ff59574627781f9252908d655b2419f33c1b9f3f80",
+      "oracleMatch": "exact PNG bytes"
+    },
+    {
+      "id": "sea-640x360-n10-a10",
+      "source": "sea",
+      "width": 640,
+      "height": 360,
+      "steps": 10,
+      "rotate": 10,
+      "sha256": "ef6b5842d5155a0b6ff401073cbabd954e3597e0dff99c73ef7238545060416b",
+      "oracleMatch": "exact PNG bytes"
+    },
+    {
+      "id": "sea-640x360-n50-a0",
+      "source": "sea",
+      "width": 640,
+      "height": 360,
+      "steps": 50,
+      "rotate": 0,
+      "sha256": "7bfa8af57b4f5ab107af1bca4ef00ef6db59b8abacef81ea81a3dbcdfa7ded36",
+      "oracleMatch": "exact PNG bytes"
+    },
+    {
+      "id": "sea-640x360-n50-a-35",
+      "source": "sea",
+      "width": 640,
+      "height": 360,
+      "steps": 50,
+      "rotate": -35,
+      "sha256": "09b47fcd122f2b4a2e495c93455d37a45163e3c6787dd5b4ef4203df6b6d2307",
+      "oracleMatch": "exact PNG bytes"
+    },
+    {
+      "id": "sea-640x360-n50-a10",
+      "source": "sea",
+      "width": 640,
+      "height": 360,
+      "steps": 50,
+      "rotate": 10,
+      "sha256": "15c03bf03a00bb4ac7def56f6f7348a14623068dd651cc0f3f147a7856c5d22e",
+      "oracleMatch": "exact PNG bytes"
+    },
+    {
+      "id": "sea-360x640-n1-a0",
+      "source": "sea",
+      "width": 360,
+      "height": 640,
+      "steps": 1,
+      "rotate": 0,
+      "sha256": "4604021c85aa05693415c49ddba98028490b458dfdaabfd764149830682b4891",
+      "oracleMatch": "exact PNG bytes"
+    },
+    {
+      "id": "sea-360x640-n1-a-35",
+      "source": "sea",
+      "width": 360,
+      "height": 640,
+      "steps": 1,
+      "rotate": -35,
+      "sha256": "e0d900f1c7b12eeee29129a9acc8487b69d4555a14dd54d3c701ce15e9d6909b",
+      "oracleMatch": "exact PNG bytes"
+    },
+    {
+      "id": "sea-360x640-n1-a10",
+      "source": "sea",
+      "width": 360,
+      "height": 640,
+      "steps": 1,
+      "rotate": 10,
+      "sha256": "c5c93be67499e4a235090801e564d4a8110a062610f6998f7b4e1525a20c2013",
+      "oracleMatch": "exact PNG bytes"
+    },
+    {
+      "id": "sea-360x640-n10-a0",
+      "source": "sea",
+      "width": 360,
+      "height": 640,
+      "steps": 10,
+      "rotate": 0,
+      "sha256": "4604021c85aa05693415c49ddba98028490b458dfdaabfd764149830682b4891",
+      "oracleMatch": "exact PNG bytes"
+    },
+    {
+      "id": "sea-360x640-n10-a-35",
+      "source": "sea",
+      "width": 360,
+      "height": 640,
+      "steps": 10,
+      "rotate": -35,
+      "sha256": "77ed68235d328da5c5d976ec4cca07a55ea93f8f4a743a9b3670edf80ecc452a",
+      "oracleMatch": "exact PNG bytes"
+    },
+    {
+      "id": "sea-360x640-n10-a10",
+      "source": "sea",
+      "width": 360,
+      "height": 640,
+      "steps": 10,
+      "rotate": 10,
+      "sha256": "c0280e4f0c440c6ef055b3ef86537e3ddf25bffd573cecd9d1b3fe1f1d1676e8",
+      "oracleMatch": "exact PNG bytes"
+    },
+    {
+      "id": "sea-360x640-n50-a0",
+      "source": "sea",
+      "width": 360,
+      "height": 640,
+      "steps": 50,
+      "rotate": 0,
+      "sha256": "4604021c85aa05693415c49ddba98028490b458dfdaabfd764149830682b4891",
+      "oracleMatch": "exact PNG bytes"
+    },
+    {
+      "id": "sea-360x640-n50-a-35",
+      "source": "sea",
+      "width": 360,
+      "height": 640,
+      "steps": 50,
+      "rotate": -35,
+      "sha256": "5bc77e2240fcd23a7dd3eb54208d030e56973da090a18f4247f7f4780583168e",
+      "oracleMatch": "exact PNG bytes"
+    },
+    {
+      "id": "sea-360x640-n50-a10",
+      "source": "sea",
+      "width": 360,
+      "height": 640,
+      "steps": 50,
+      "rotate": 10,
+      "sha256": "687d63eaf01e9bab883c7b625b602a71bad5fbd924e7f2d2c08834576b451599",
+      "oracleMatch": "exact PNG bytes"
+    },
+    {
+      "id": "quadrants-480x480-n1-a0",
+      "source": "quadrants",
+      "width": 480,
+      "height": 480,
+      "steps": 1,
+      "rotate": 0,
+      "sha256": "18b3264798ed3b01f0d8f3bddb240221116a159f91ad9e0451d0dc0900c39687",
+      "oracleMatch": "exact PNG bytes"
+    },
+    {
+      "id": "quadrants-480x480-n1-a-35",
+      "source": "quadrants",
+      "width": 480,
+      "height": 480,
+      "steps": 1,
+      "rotate": -35,
+      "sha256": "a80ed5a6c1e6949c4d535ae7dbd10e691901d3c2f1333c3dd7d05c75d20726fe",
+      "oracleMatch": "exact PNG bytes"
+    },
+    {
+      "id": "quadrants-480x480-n1-a10",
+      "source": "quadrants",
+      "width": 480,
+      "height": 480,
+      "steps": 1,
+      "rotate": 10,
+      "sha256": "3163b0d893269688e25cd6084acf3065ec012297db5b4f9f9b234b34eea3d65d",
+      "oracleMatch": "exact PNG bytes"
+    },
+    {
+      "id": "quadrants-480x480-n10-a0",
+      "source": "quadrants",
+      "width": 480,
+      "height": 480,
+      "steps": 10,
+      "rotate": 0,
+      "sha256": "18b3264798ed3b01f0d8f3bddb240221116a159f91ad9e0451d0dc0900c39687",
+      "oracleMatch": "exact PNG bytes"
+    },
+    {
+      "id": "quadrants-480x480-n10-a-35",
+      "source": "quadrants",
+      "width": 480,
+      "height": 480,
+      "steps": 10,
+      "rotate": -35,
+      "sha256": "0d58e6b351e8a64f89c5605682366494b89db26c564d297af8662b4c94ea362e",
+      "oracleMatch": "exact PNG bytes"
+    },
+    {
+      "id": "quadrants-480x480-n10-a10",
+      "source": "quadrants",
+      "width": 480,
+      "height": 480,
+      "steps": 10,
+      "rotate": 10,
+      "sha256": "21b4360e04d97dcdeeddf946956520f666c18003dc70ad2e9ec6b787ffa45069",
+      "oracleMatch": "exact PNG bytes"
+    },
+    {
+      "id": "quadrants-480x480-n50-a0",
+      "source": "quadrants",
+      "width": 480,
+      "height": 480,
+      "steps": 50,
+      "rotate": 0,
+      "sha256": "18b3264798ed3b01f0d8f3bddb240221116a159f91ad9e0451d0dc0900c39687",
+      "oracleMatch": "exact PNG bytes"
+    },
+    {
+      "id": "quadrants-480x480-n50-a-35",
+      "source": "quadrants",
+      "width": 480,
+      "height": 480,
+      "steps": 50,
+      "rotate": -35,
+      "sha256": "6b030a9a3f59467bb000fd1a7eb842d7234edfef9584b6006bc4308aacb5d38b",
+      "oracleMatch": "exact PNG bytes"
+    },
+    {
+      "id": "quadrants-480x480-n50-a10",
+      "source": "quadrants",
+      "width": 480,
+      "height": 480,
+      "steps": 50,
+      "rotate": 10,
+      "sha256": "ba6cd379ef345458c9c20da6b1b4526df5df542a6f758ab0f20f1cd52c354cee",
+      "oracleMatch": "exact PNG bytes"
+    },
+    {
+      "id": "quadrants-640x360-n1-a0",
+      "source": "quadrants",
+      "width": 640,
+      "height": 360,
+      "steps": 1,
+      "rotate": 0,
+      "sha256": "5acd714d4bfdf6c9a1c01e15908661ae61310c8549deca4344f0183522f06fb6",
+      "oracleMatch": "exact PNG bytes"
+    },
+    {
+      "id": "quadrants-640x360-n1-a-35",
+      "source": "quadrants",
+      "width": 640,
+      "height": 360,
+      "steps": 1,
+      "rotate": -35,
+      "sha256": "ab9f3f261554823ecc8b8d4205ea835b2fcc880a1ce0dfd6848fb7816ff0878a",
+      "oracleMatch": "exact PNG bytes"
+    },
+    {
+      "id": "quadrants-640x360-n1-a10",
+      "source": "quadrants",
+      "width": 640,
+      "height": 360,
+      "steps": 1,
+      "rotate": 10,
+      "sha256": "4229ba61e63c1031363c2bb0d8992a9c2b4ba676ccd9fa0237a367a23d82d799",
+      "oracleMatch": "exact PNG bytes"
+    },
+    {
+      "id": "quadrants-640x360-n10-a0",
+      "source": "quadrants",
+      "width": 640,
+      "height": 360,
+      "steps": 10,
+      "rotate": 0,
+      "sha256": "5acd714d4bfdf6c9a1c01e15908661ae61310c8549deca4344f0183522f06fb6",
+      "oracleMatch": "exact PNG bytes"
+    },
+    {
+      "id": "quadrants-640x360-n10-a-35",
+      "source": "quadrants",
+      "width": 640,
+      "height": 360,
+      "steps": 10,
+      "rotate": -35,
+      "sha256": "2434825a5de1a69050cd5b6a408154ed34855bd90726e1068bcdc11af3e936b0",
+      "oracleMatch": "exact PNG bytes"
+    },
+    {
+      "id": "quadrants-640x360-n10-a10",
+      "source": "quadrants",
+      "width": 640,
+      "height": 360,
+      "steps": 10,
+      "rotate": 10,
+      "sha256": "7ba99933a83b428b0593da59020807fd196f63676077c9f298775b34b8588e6f",
+      "oracleMatch": "exact PNG bytes"
+    },
+    {
+      "id": "quadrants-640x360-n50-a0",
+      "source": "quadrants",
+      "width": 640,
+      "height": 360,
+      "steps": 50,
+      "rotate": 0,
+      "sha256": "5acd714d4bfdf6c9a1c01e15908661ae61310c8549deca4344f0183522f06fb6",
+      "oracleMatch": "exact PNG bytes"
+    },
+    {
+      "id": "quadrants-640x360-n50-a-35",
+      "source": "quadrants",
+      "width": 640,
+      "height": 360,
+      "steps": 50,
+      "rotate": -35,
+      "sha256": "1d53c8b5738e7c49520c35ad7011463fadb004da5fa7d5711c9fac4cd1809f65",
+      "oracleMatch": "exact PNG bytes"
+    },
+    {
+      "id": "quadrants-640x360-n50-a10",
+      "source": "quadrants",
+      "width": 640,
+      "height": 360,
+      "steps": 50,
+      "rotate": 10,
+      "sha256": "a595588daa727526808d6136a3afec54bb58e21afcc78ffd1396dabd7057740c",
+      "oracleMatch": "exact PNG bytes"
+    },
+    {
+      "id": "quadrants-360x640-n1-a0",
+      "source": "quadrants",
+      "width": 360,
+      "height": 640,
+      "steps": 1,
+      "rotate": 0,
+      "sha256": "d3574bb3d958f5a7104d1cd7338fbd374f39c8d587b3f9549863da930ea1c04a",
+      "oracleMatch": "exact PNG bytes"
+    },
+    {
+      "id": "quadrants-360x640-n1-a-35",
+      "source": "quadrants",
+      "width": 360,
+      "height": 640,
+      "steps": 1,
+      "rotate": -35,
+      "sha256": "360cd6f7d73b27528808db77672b5694355f280d7e95b6589700272e29f35890",
+      "oracleMatch": "exact PNG bytes"
+    },
+    {
+      "id": "quadrants-360x640-n1-a10",
+      "source": "quadrants",
+      "width": 360,
+      "height": 640,
+      "steps": 1,
+      "rotate": 10,
+      "sha256": "8118de226a2929f9fa57765c0dac750f0ecfe7be29242afa517ad51eb9387133",
+      "oracleMatch": "exact PNG bytes"
+    },
+    {
+      "id": "quadrants-360x640-n10-a0",
+      "source": "quadrants",
+      "width": 360,
+      "height": 640,
+      "steps": 10,
+      "rotate": 0,
+      "sha256": "d3574bb3d958f5a7104d1cd7338fbd374f39c8d587b3f9549863da930ea1c04a",
+      "oracleMatch": "exact PNG bytes"
+    },
+    {
+      "id": "quadrants-360x640-n10-a-35",
+      "source": "quadrants",
+      "width": 360,
+      "height": 640,
+      "steps": 10,
+      "rotate": -35,
+      "sha256": "85e684ab87d76d8de7aaf107cbaabb9d5b31a3807075509f1c7421b7661a80be",
+      "oracleMatch": "exact PNG bytes"
+    },
+    {
+      "id": "quadrants-360x640-n10-a10",
+      "source": "quadrants",
+      "width": 360,
+      "height": 640,
+      "steps": 10,
+      "rotate": 10,
+      "sha256": "4d4d0a514b76075ee10ccc9e0fea0f57e63558d173aa4c4f058c9fa8b602ba7e",
+      "oracleMatch": "exact PNG bytes"
+    },
+    {
+      "id": "quadrants-360x640-n50-a0",
+      "source": "quadrants",
+      "width": 360,
+      "height": 640,
+      "steps": 50,
+      "rotate": 0,
+      "sha256": "d3574bb3d958f5a7104d1cd7338fbd374f39c8d587b3f9549863da930ea1c04a",
+      "oracleMatch": "exact PNG bytes"
+    },
+    {
+      "id": "quadrants-360x640-n50-a-35",
+      "source": "quadrants",
+      "width": 360,
+      "height": 640,
+      "steps": 50,
+      "rotate": -35,
+      "sha256": "c9f5f643a8eb8d2389dcf9a774b5a6b1a3f713b74270015857f3f34a472f9a38",
+      "oracleMatch": "exact PNG bytes"
+    },
+    {
+      "id": "quadrants-360x640-n50-a10",
+      "source": "quadrants",
+      "width": 360,
+      "height": 640,
+      "steps": 50,
+      "rotate": 10,
+      "sha256": "122306e81074d87e232e96ef2e4bbf24a9cf548143878ed77e647b49da867026",
+      "oracleMatch": "exact PNG bytes"
+    },
+    {
+      "id": "transparent-480x480-n1-a0",
+      "source": "transparent",
+      "width": 480,
+      "height": 480,
+      "steps": 1,
+      "rotate": 0,
+      "sha256": "cf0722387343510eed32fae7807417724ef2b49d3f2f1cc0728141ddc9d65f2c",
+      "oracleMatch": "exact PNG bytes"
+    },
+    {
+      "id": "transparent-480x480-n1-a-35",
+      "source": "transparent",
+      "width": 480,
+      "height": 480,
+      "steps": 1,
+      "rotate": -35,
+      "sha256": "e9c9e4db4ae7eb546dca208de8eaf3e8833d2e37026097028857f9a2d55b1720",
+      "oracleMatch": "exact PNG bytes"
+    },
+    {
+      "id": "transparent-480x480-n1-a10",
+      "source": "transparent",
+      "width": 480,
+      "height": 480,
+      "steps": 1,
+      "rotate": 10,
+      "sha256": "05a0e8dc29c2ae7d77d8051dca0fec7ede3d24883768a08175ec29808e8a80c5",
+      "oracleMatch": "exact PNG bytes"
+    },
+    {
+      "id": "transparent-480x480-n10-a0",
+      "source": "transparent",
+      "width": 480,
+      "height": 480,
+      "steps": 10,
+      "rotate": 0,
+      "sha256": "7a4293f13aaba993ea730aae52d2941f615c3e06e412ad45cccd8794940925d7",
+      "oracleMatch": "exact PNG bytes"
+    },
+    {
+      "id": "transparent-480x480-n10-a-35",
+      "source": "transparent",
+      "width": 480,
+      "height": 480,
+      "steps": 10,
+      "rotate": -35,
+      "sha256": "407ee40e1440d90db166d2a44c5f64e9dd5dc1edcf99d2e6dea461d1bb922b77",
+      "oracleMatch": "exact PNG bytes"
+    },
+    {
+      "id": "transparent-480x480-n10-a10",
+      "source": "transparent",
+      "width": 480,
+      "height": 480,
+      "steps": 10,
+      "rotate": 10,
+      "sha256": "6ca761fca3ce2fddcfa0be5988ef9dec4d2577e6ee6af6d23cde5a712c3ccbc3",
+      "oracleMatch": "exact PNG bytes"
+    },
+    {
+      "id": "transparent-480x480-n50-a0",
+      "source": "transparent",
+      "width": 480,
+      "height": 480,
+      "steps": 50,
+      "rotate": 0,
+      "sha256": "99a8de1ddd598ec626e8051b8c2ddc173e7f9fd043052fb41fbb18deb139042f",
+      "oracleMatch": "exact PNG bytes"
+    },
+    {
+      "id": "transparent-480x480-n50-a-35",
+      "source": "transparent",
+      "width": 480,
+      "height": 480,
+      "steps": 50,
+      "rotate": -35,
+      "sha256": "72a0ddc1de12d951394882a3edcf43f8ab3b4bb0da709df5f7f80d169270328c",
+      "oracleMatch": "exact PNG bytes"
+    },
+    {
+      "id": "transparent-480x480-n50-a10",
+      "source": "transparent",
+      "width": 480,
+      "height": 480,
+      "steps": 50,
+      "rotate": 10,
+      "sha256": "29d2984491be84333607b08a7e8b5e7f2675f2031ceeb1f44ab2ef9b3f6349c0",
+      "oracleMatch": "exact PNG bytes"
+    },
+    {
+      "id": "transparent-640x360-n1-a0",
+      "source": "transparent",
+      "width": 640,
+      "height": 360,
+      "steps": 1,
+      "rotate": 0,
+      "sha256": "4df450ab14240bf549791db27c2c6701af97c12a57a5e7c8abc5fd1929ad69cb",
+      "oracleMatch": "exact PNG bytes"
+    },
+    {
+      "id": "transparent-640x360-n1-a-35",
+      "source": "transparent",
+      "width": 640,
+      "height": 360,
+      "steps": 1,
+      "rotate": -35,
+      "sha256": "823b44bc301bf46fd3664e25e0767b669edf79f6e73ee639df8a68e7d508e88f",
+      "oracleMatch": "exact PNG bytes"
+    },
+    {
+      "id": "transparent-640x360-n1-a10",
+      "source": "transparent",
+      "width": 640,
+      "height": 360,
+      "steps": 1,
+      "rotate": 10,
+      "sha256": "f5f7085c651e7ce62b95f2fdfd947473f45164f3ce8b64da0831ab0353768946",
+      "oracleMatch": "exact PNG bytes"
+    },
+    {
+      "id": "transparent-640x360-n10-a0",
+      "source": "transparent",
+      "width": 640,
+      "height": 360,
+      "steps": 10,
+      "rotate": 0,
+      "sha256": "828f14343891169561404b969534bab2089bcf88ef90219d84741411ea6c2bf0",
+      "oracleMatch": "exact PNG bytes"
+    },
+    {
+      "id": "transparent-640x360-n10-a-35",
+      "source": "transparent",
+      "width": 640,
+      "height": 360,
+      "steps": 10,
+      "rotate": -35,
+      "sha256": "3c32632d7fad4751a93764b8bc0af73b97c326ee44fed35ee01538e1ed04bb7e",
+      "oracleMatch": "exact PNG bytes"
+    },
+    {
+      "id": "transparent-640x360-n10-a10",
+      "source": "transparent",
+      "width": 640,
+      "height": 360,
+      "steps": 10,
+      "rotate": 10,
+      "sha256": "dd0cfa6d4dde388a2bdd7c64781c30e8464466074301e33f970f9e654c7ceeb7",
+      "oracleMatch": "exact PNG bytes"
+    },
+    {
+      "id": "transparent-640x360-n50-a0",
+      "source": "transparent",
+      "width": 640,
+      "height": 360,
+      "steps": 50,
+      "rotate": 0,
+      "sha256": "9a6f65518bdfe783fff3fbba7bf419fb06943ca21ef960b460ac48cb29e2f820",
+      "oracleMatch": "exact PNG bytes"
+    },
+    {
+      "id": "transparent-640x360-n50-a-35",
+      "source": "transparent",
+      "width": 640,
+      "height": 360,
+      "steps": 50,
+      "rotate": -35,
+      "sha256": "0f3d66fdaaf391112260875d61b7e03113e31f1887791c0ae79eb36740c8156d",
+      "oracleMatch": "exact PNG bytes"
+    },
+    {
+      "id": "transparent-640x360-n50-a10",
+      "source": "transparent",
+      "width": 640,
+      "height": 360,
+      "steps": 50,
+      "rotate": 10,
+      "sha256": "7122fda911f23c4344dcd3631da2fbc90364b81c3dd7b1f1f321261f6f702720",
+      "oracleMatch": "exact PNG bytes"
+    },
+    {
+      "id": "transparent-360x640-n1-a0",
+      "source": "transparent",
+      "width": 360,
+      "height": 640,
+      "steps": 1,
+      "rotate": 0,
+      "sha256": "cb55fe5d726b65c5b399352160709e5476e1f23a35ef8151b2ac5d15039b326f",
+      "oracleMatch": "exact PNG bytes"
+    },
+    {
+      "id": "transparent-360x640-n1-a-35",
+      "source": "transparent",
+      "width": 360,
+      "height": 640,
+      "steps": 1,
+      "rotate": -35,
+      "sha256": "0142685df7224dfacefd1276005555fb7209d32bad858b6db166e725b709d9ef",
+      "oracleMatch": "exact PNG bytes"
+    },
+    {
+      "id": "transparent-360x640-n1-a10",
+      "source": "transparent",
+      "width": 360,
+      "height": 640,
+      "steps": 1,
+      "rotate": 10,
+      "sha256": "b8d418eab41610bba7dab764cb9897715ff6b5f900ef1a29e3b499f608142779",
+      "oracleMatch": "exact PNG bytes"
+    },
+    {
+      "id": "transparent-360x640-n10-a0",
+      "source": "transparent",
+      "width": 360,
+      "height": 640,
+      "steps": 10,
+      "rotate": 0,
+      "sha256": "d90121a043b9cff988b45548cb486065a53eab2fe4b7ede3a2d937149ed1bb3e",
+      "oracleMatch": "exact PNG bytes"
+    },
+    {
+      "id": "transparent-360x640-n10-a-35",
+      "source": "transparent",
+      "width": 360,
+      "height": 640,
+      "steps": 10,
+      "rotate": -35,
+      "sha256": "074f4f611a2f54edb91b5c51d15af33a2a697b1715405208d1334c8e020e3b80",
+      "oracleMatch": "exact PNG bytes"
+    },
+    {
+      "id": "transparent-360x640-n10-a10",
+      "source": "transparent",
+      "width": 360,
+      "height": 640,
+      "steps": 10,
+      "rotate": 10,
+      "sha256": "bb86ff460fbf2c706782cf7dc2829e52a1c04a0d2e74e5d619d86e013660d197",
+      "oracleMatch": "exact PNG bytes"
+    },
+    {
+      "id": "transparent-360x640-n50-a0",
+      "source": "transparent",
+      "width": 360,
+      "height": 640,
+      "steps": 50,
+      "rotate": 0,
+      "sha256": "c00474cfab7186b71b9659db92a44e2250568fbff5b8675faae007d1d85d169e",
+      "oracleMatch": "exact PNG bytes"
+    },
+    {
+      "id": "transparent-360x640-n50-a-35",
+      "source": "transparent",
+      "width": 360,
+      "height": 640,
+      "steps": 50,
+      "rotate": -35,
+      "sha256": "453ced12388628aeb0e7fc0648151353353cbd926490d6cc6100944768d09d0a",
+      "oracleMatch": "exact PNG bytes"
+    },
+    {
+      "id": "transparent-360x640-n50-a10",
+      "source": "transparent",
+      "width": 360,
+      "height": 640,
+      "steps": 50,
+      "rotate": 10,
+      "sha256": "b782d570dc386247a7f1a5fe5705bb5b1a6e42ef0a56bd67a971c31036caa093",
+      "oracleMatch": "exact PNG bytes"
+    },
+    {
+      "id": "portrait-480x480-n1-a0",
+      "source": "portrait",
+      "width": 480,
+      "height": 480,
+      "steps": 1,
+      "rotate": 0,
+      "sha256": "fb44de0d63f5e935b28c3a2f5ceea04e7e025dae1c7b559cd193aaa9bb5a2cd0",
+      "oracleMatch": "exact PNG bytes"
+    },
+    {
+      "id": "portrait-480x480-n1-a-35",
+      "source": "portrait",
+      "width": 480,
+      "height": 480,
+      "steps": 1,
+      "rotate": -35,
+      "sha256": "7c1f551297e04de630ef4e623d466990e6fb0b968669c750f8e232e87d599d00",
+      "oracleMatch": "exact PNG bytes"
+    },
+    {
+      "id": "portrait-480x480-n1-a10",
+      "source": "portrait",
+      "width": 480,
+      "height": 480,
+      "steps": 1,
+      "rotate": 10,
+      "sha256": "bce692e6a9df7e34a3ee52c54a20281c0e88a59df8af7d9f139eda9042609a5c",
+      "oracleMatch": "exact PNG bytes"
+    },
+    {
+      "id": "portrait-480x480-n10-a0",
+      "source": "portrait",
+      "width": 480,
+      "height": 480,
+      "steps": 10,
+      "rotate": 0,
+      "sha256": "fb44de0d63f5e935b28c3a2f5ceea04e7e025dae1c7b559cd193aaa9bb5a2cd0",
+      "oracleMatch": "exact PNG bytes"
+    },
+    {
+      "id": "portrait-480x480-n10-a-35",
+      "source": "portrait",
+      "width": 480,
+      "height": 480,
+      "steps": 10,
+      "rotate": -35,
+      "sha256": "1b52c8d1a9dd9f99441885345a5f39b6ed72b5f832ca8513a634042fe67683f7",
+      "oracleMatch": "exact PNG bytes"
+    },
+    {
+      "id": "portrait-480x480-n10-a10",
+      "source": "portrait",
+      "width": 480,
+      "height": 480,
+      "steps": 10,
+      "rotate": 10,
+      "sha256": "c51a819ff6ca3a0793adddd6779755b0730dfbd530d6ad0e4d5ac78dfad4681b",
+      "oracleMatch": "exact PNG bytes"
+    },
+    {
+      "id": "portrait-480x480-n50-a0",
+      "source": "portrait",
+      "width": 480,
+      "height": 480,
+      "steps": 50,
+      "rotate": 0,
+      "sha256": "fb44de0d63f5e935b28c3a2f5ceea04e7e025dae1c7b559cd193aaa9bb5a2cd0",
+      "oracleMatch": "exact PNG bytes"
+    },
+    {
+      "id": "portrait-480x480-n50-a-35",
+      "source": "portrait",
+      "width": 480,
+      "height": 480,
+      "steps": 50,
+      "rotate": -35,
+      "sha256": "c55649da4a87b3302f0ee1aa66167a5e04229708c9b516389a611b216d18b341",
+      "oracleMatch": "exact PNG bytes"
+    },
+    {
+      "id": "portrait-480x480-n50-a10",
+      "source": "portrait",
+      "width": 480,
+      "height": 480,
+      "steps": 50,
+      "rotate": 10,
+      "sha256": "3d0d0522389f45559dc58e71a670eb40cfd2b39d9697f8d86074d4c96b87323d",
+      "oracleMatch": "exact PNG bytes"
+    },
+    {
+      "id": "portrait-640x360-n1-a0",
+      "source": "portrait",
+      "width": 640,
+      "height": 360,
+      "steps": 1,
+      "rotate": 0,
+      "sha256": "3c0cb73026e78cfab7da59b00d761bf857cb7f1897db8f700f192221bc2a22bd",
+      "oracleMatch": "exact PNG bytes"
+    },
+    {
+      "id": "portrait-640x360-n1-a-35",
+      "source": "portrait",
+      "width": 640,
+      "height": 360,
+      "steps": 1,
+      "rotate": -35,
+      "sha256": "3304d8ab6aec4ec01e1729773136a7552f2385c30b0455f326d3721d112d628c",
+      "oracleMatch": "exact PNG bytes"
+    },
+    {
+      "id": "portrait-640x360-n1-a10",
+      "source": "portrait",
+      "width": 640,
+      "height": 360,
+      "steps": 1,
+      "rotate": 10,
+      "sha256": "9c4ba7a953067a68e13c788db445d89b23675c6c03d2b45915185c472e7cb391",
+      "oracleMatch": "exact PNG bytes"
+    },
+    {
+      "id": "portrait-640x360-n10-a0",
+      "source": "portrait",
+      "width": 640,
+      "height": 360,
+      "steps": 10,
+      "rotate": 0,
+      "sha256": "3c0cb73026e78cfab7da59b00d761bf857cb7f1897db8f700f192221bc2a22bd",
+      "oracleMatch": "exact PNG bytes"
+    },
+    {
+      "id": "portrait-640x360-n10-a-35",
+      "source": "portrait",
+      "width": 640,
+      "height": 360,
+      "steps": 10,
+      "rotate": -35,
+      "sha256": "d24cb1d0a590123be3a0c6641e3ceb3b941a33fb154208abd9f0aaf73346d806",
+      "oracleMatch": "exact PNG bytes"
+    },
+    {
+      "id": "portrait-640x360-n10-a10",
+      "source": "portrait",
+      "width": 640,
+      "height": 360,
+      "steps": 10,
+      "rotate": 10,
+      "sha256": "530ff2933895b4c5fb922d714bbcf7ec581976bd0a1695c95f6a17c858131ecf",
+      "oracleMatch": "exact PNG bytes"
+    },
+    {
+      "id": "portrait-640x360-n50-a0",
+      "source": "portrait",
+      "width": 640,
+      "height": 360,
+      "steps": 50,
+      "rotate": 0,
+      "sha256": "3c0cb73026e78cfab7da59b00d761bf857cb7f1897db8f700f192221bc2a22bd",
+      "oracleMatch": "exact PNG bytes"
+    },
+    {
+      "id": "portrait-640x360-n50-a-35",
+      "source": "portrait",
+      "width": 640,
+      "height": 360,
+      "steps": 50,
+      "rotate": -35,
+      "sha256": "74ad09ae05687eabe04d62afafa611032f75284d32749652eac25ff38bbe2eb7",
+      "oracleMatch": "exact PNG bytes"
+    },
+    {
+      "id": "portrait-640x360-n50-a10",
+      "source": "portrait",
+      "width": 640,
+      "height": 360,
+      "steps": 50,
+      "rotate": 10,
+      "sha256": "168dce93a8b6068f2900ff7ece44ca584e94ec9727458d2f57ddfd85da52a19f",
+      "oracleMatch": "exact PNG bytes"
+    },
+    {
+      "id": "portrait-360x640-n1-a0",
+      "source": "portrait",
+      "width": 360,
+      "height": 640,
+      "steps": 1,
+      "rotate": 0,
+      "sha256": "84e250fea5cd3f272f1dd9b2d4ea6ee825724d25a8d24dc2065f5e7e0f3693c0",
+      "oracleMatch": "exact PNG bytes"
+    },
+    {
+      "id": "portrait-360x640-n1-a-35",
+      "source": "portrait",
+      "width": 360,
+      "height": 640,
+      "steps": 1,
+      "rotate": -35,
+      "sha256": "0b7394e86d5aa8d89eb580eb3f32e62a841fd842ead8e3836d6697b7e8cc0f02",
+      "oracleMatch": "exact PNG bytes"
+    },
+    {
+      "id": "portrait-360x640-n1-a10",
+      "source": "portrait",
+      "width": 360,
+      "height": 640,
+      "steps": 1,
+      "rotate": 10,
+      "sha256": "370762560f2199f90c1aa5e3e44108602b9fd762dbf860e6c77ed48cb93140e3",
+      "oracleMatch": "exact PNG bytes"
+    },
+    {
+      "id": "portrait-360x640-n10-a0",
+      "source": "portrait",
+      "width": 360,
+      "height": 640,
+      "steps": 10,
+      "rotate": 0,
+      "sha256": "84e250fea5cd3f272f1dd9b2d4ea6ee825724d25a8d24dc2065f5e7e0f3693c0",
+      "oracleMatch": "exact PNG bytes"
+    },
+    {
+      "id": "portrait-360x640-n10-a-35",
+      "source": "portrait",
+      "width": 360,
+      "height": 640,
+      "steps": 10,
+      "rotate": -35,
+      "sha256": "507db9adaa6459f0c093342a2006cbc9b458eb35843adcbc07e5e27ad27b874a",
+      "oracleMatch": "exact PNG bytes"
+    },
+    {
+      "id": "portrait-360x640-n10-a10",
+      "source": "portrait",
+      "width": 360,
+      "height": 640,
+      "steps": 10,
+      "rotate": 10,
+      "sha256": "7e86c6a848fe996a70fdde5270cb45c4c094d7f1c393605d66ab6b98e41949f8",
+      "oracleMatch": "exact PNG bytes"
+    },
+    {
+      "id": "portrait-360x640-n50-a0",
+      "source": "portrait",
+      "width": 360,
+      "height": 640,
+      "steps": 50,
+      "rotate": 0,
+      "sha256": "84e250fea5cd3f272f1dd9b2d4ea6ee825724d25a8d24dc2065f5e7e0f3693c0",
+      "oracleMatch": "exact PNG bytes"
+    },
+    {
+      "id": "portrait-360x640-n50-a-35",
+      "source": "portrait",
+      "width": 360,
+      "height": 640,
+      "steps": 50,
+      "rotate": -35,
+      "sha256": "b1ac5d4b91de5a6ac80faabce16d06a2e97902b767a0bb12aa503ffa6d4c41fd",
+      "oracleMatch": "exact PNG bytes"
+    },
+    {
+      "id": "portrait-360x640-n50-a10",
+      "source": "portrait",
+      "width": 360,
+      "height": 640,
+      "steps": 50,
+      "rotate": 10,
+      "sha256": "c45485fa234b3c0e537eef2e77df3be63ba9f23d9d996e27c08d0e386c53b4ea",
+      "oracleMatch": "exact PNG bytes"
+    }
+  ]
+}

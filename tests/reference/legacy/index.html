@@ -1,0 +1,15 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<base href="../../../">
+<title>Frozen original oracle — test only</title>
+<canvas id="canvas"></canvas>
+<script>
+  // Minimal unused-UI shim. The original main.js and fit remain byte-for-byte.
+  window.dat = { GUI: function () { this.add = () => {}; } };
+  // Each image load / explicit slice.init() draws once. Never run the legacy loop.
+  window.requestAnimationFrame = () => 0;
+</script>
+<script src="tests/reference/legacy/fit.min.js"></script>
+<script src="tests/reference/legacy/main.js"></script>
+</html>

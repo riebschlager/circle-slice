@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Circle Slice — M0 reference harness</title>
+<style>
+  body { margin: 24px; font: 16px system-ui; background: #eee; color: #222; }
+  canvas { display: block; margin-top: 16px; max-width: 100%; height: auto;
+    background: repeating-conic-gradient(#ccc 0% 25%, white 0% 50%) 0 / 20px 20px; }
+</style>
+<h1>M0 Classic reference</h1>
+<p id="settings"></p>
+<p>Test-only, one render per load. Query parameters: source=sea|quadrants|transparent|portrait,
+width, height, steps, rotate. Canvas backing pixels are the reference, excluding this page.</p>
+<canvas id="reference"></canvas>
+<script src="./legacy/fit.min.js"></script>
+<script type="module">
+  import { renderLegacy } from './render.js';
+  import { makeFixture } from './fixtures.js';
+  window.renderCase = async ({ source, width, height, steps, rotate }) => {
+    const img = new Image();
+    img.src = source === 'sea' ? '../../img/sea.jpg' : makeFixture(source === 'transparent', source === 'portrait').toDataURL();
+    await img.decode();
+    const canvas = document.getElementById('reference');
+    canvas.width = width;
+    canvas.height = height;
+    renderLegacy(canvas, img, steps, rotate);
+    document.getElementById('settings').textContent = `${source} · ${width} × ${height} · ${steps} slices · ${rotate}°`;
+    return canvas.toDataURL('image/png');
+  };
+  window.fixturePNG = source => makeFixture(source === 'transparent', source === 'portrait').toDataURL('image/png');
+  const query = new URLSearchParams(location.search);
+  window.ready = window.renderCase({
+    source: query.get('source') || 'quadrants',
+    width: Number(query.get('width') || 480), height: Number(query.get('height') || 480),
+    steps: Number(query.get('steps') || 10), rotate: Number(query.get('rotate') ?? 10),
+  });
+</script>
+</html>
