@@ -304,13 +304,15 @@ Acceptance: supported local files load through both entry points; A→B races en
 
 Dependencies: M3.
 
-- [ ] Replace dat.GUI and transient intro with the section 6 interface.
-- [ ] Wire sliders and numeric fields through shared validation; add Reset effect and Original/Result comparison.
-- [ ] Add source/square/landscape/portrait/custom artwork dimensions, linked aspect handling, and visible pixel limits.
-- [ ] Implement status and error UI, labels, focus styling, touch sizing, reduced motion, and canvas description.
-- [ ] Inspect desktop and mobile layouts with real images; perform keyboard, zoom, and automated accessibility checks.
+- [x] Replace dat.GUI and transient intro with the section 6 interface.
+- [x] Wire sliders and numeric fields through shared validation; add Reset effect and Original/Result comparison.
+- [x] Add source/square/landscape/portrait/custom artwork dimensions, linked aspect handling, and visible pixel limits.
+- [x] Implement status and error UI, labels, focus styling, touch sizing, reduced motion, and canvas description.
+- [x] Inspect desktop and mobile layouts with real images; perform keyboard, zoom, and automated accessibility checks.
 
 Acceptance: a first-time visitor can load and edit an image using mouse, keyboard, or touch; resizing and comparison leave export settings intact; no controls obscure artwork.
+
+M4 evidence: dat.GUI replaced with `EffectControls` (paired range + number inputs, draft text while editing, commit/normalize on Enter/blur/Escape, inline validation messages) and `ArtworkControls` (source/1∶1/4∶3/3∶4/custom presets, W×H pixel inputs, live pixel count, limit messaging). `EditorState` extended with `viewMode` ('result'/'original'), `RESET_SETTINGS`, `SET_ARTWORK`, `SET_VIEW_MODE` actions. Original/Result comparison toggle above the figcaption; comparison draws uncovered source without the Classic effect. Toolbar with Open image, Reset effect, Download (placeholder) across the full grid width. `main.css` rewritten with CSS custom properties, named grid areas (masthead/toolbar/example/controls), `@media (max-width: 700px)` single-column stacking, `@media (max-width: 400px)` tighter padding, `@media (prefers-reduced-motion)`. All 31 browser tests pass (18 existing + 13 new M4-specific: controls, toolbar, comparison, artwork presets, keyboard reachability, 320 px overflow check). Format, lint, typecheck, and unit tests all pass.
 
 ### M5 — Deliver independent full-resolution export
 

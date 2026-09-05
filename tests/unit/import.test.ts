@@ -162,6 +162,7 @@ function baseState(overrides?: Partial<EditorState>): EditorState {
     image: null,
     settings: DEFAULT_SETTINGS,
     importStatus: { kind: 'idle' },
+    viewMode: 'result',
     latestRequestId: 0,
     ...overrides,
   };

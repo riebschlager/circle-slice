@@ -1,5 +1,11 @@
 import { renderClassic, type RenderInput } from './classic';
+import { coverRect } from './geometry';
 import { previewSurface } from './sizing';
+
+export interface PreviewInput extends RenderInput {
+  /** When true, draw the source cover without the Classic effect (comparison mode). */
+  originalOnly?: boolean;
+}
 
 /** Borrows the source until update/dispose; retains only the latest input. */
 export function createPreview(
@@ -8,7 +14,7 @@ export function createPreview(
 ) {
   const ctx = canvas.getContext('2d');
   if (!ctx) throw new Error('Canvas rendering is unavailable');
-  let input: RenderInput | undefined;
+  let input: PreviewInput | undefined;
   let frame: number | undefined;
   let disposed = false;
   const invalidate = () => {
@@ -25,7 +31,25 @@ export function createPreview(
       );
       if (canvas.width !== surface.width) canvas.width = surface.width;
       if (canvas.height !== surface.height) canvas.height = surface.height;
-      renderClassic(ctx, input, surface);
+      if (input.originalOnly) {
+        // Draw the source cover without the Classic effect.
+        ctx.resetTransform();
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.globalAlpha = 1;
+        ctx.globalCompositeOperation = 'source-over';
+        ctx.setTransform(
+          surface.scale,
+          0,
+          0,
+          surface.scale,
+          surface.x,
+          surface.y,
+        );
+        const rect = coverRect(input.sourceSize, input.artwork);
+        ctx.drawImage(input.source, rect.x, rect.y, rect.width, rect.height);
+      } else {
+        renderClassic(ctx, input, surface);
+      }
     });
   };
   const observer = new ResizeObserver(invalidate);
@@ -39,7 +63,7 @@ export function createPreview(
   };
   density.addEventListener('change', densityChanged);
   return {
-    update(next: RenderInput) {
+    update(next: PreviewInput) {
       if (disposed) return;
       input = {
         ...next,
