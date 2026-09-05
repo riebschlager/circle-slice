@@ -161,7 +161,9 @@ function baseState(overrides?: Partial<EditorState>): EditorState {
   return {
     image: null,
     settings: DEFAULT_SETTINGS,
+    exportSettings: { format: 'png', quality: 0.92 },
     importStatus: { kind: 'idle' },
+    exportStatus: { kind: 'idle' },
     viewMode: 'result',
     latestRequestId: 0,
     ...overrides,

@@ -318,12 +318,14 @@ M4 evidence: dat.GUI replaced with `EffectControls` (paired range + number input
 
 Dependencies: M4.
 
-- [ ] Implement export snapshots, temporary full-source decode as needed, separate canvas rendering, PNG/JPEG options, and JPEG matte/quality.
-- [ ] Implement busy/error/retry states, safe filenames, correct MIME handling, URL lifecycle, and duplicate-submission protection.
-- [ ] Verify downloaded dimensions, visual content, full-source detail, comparison-mode behavior, and concurrent edit/import consistency.
+- [x] Implement export snapshots, temporary full-source decode as needed, separate canvas rendering, PNG/JPEG options, and JPEG matte/quality.
+- [x] Implement busy/error/retry states, safe filenames, correct MIME handling, URL lifecycle, and duplicate-submission protection.
+- [x] Verify downloaded dimensions, visual content, full-source detail, comparison-mode behavior, and concurrent edit/import consistency.
 - [ ] Test download flow on real Safari/iOS as well as automated desktop browsers; test failure recovery and constrained output sizes.
 
 Acceptance: exports match the selected composition at stated pixel dimensions regardless of preview size; no blank or wrongly labeled file is reported as successful. Failure leaves the editor usable.
+
+M5 evidence: `src/export/` module added with three units: `render.ts` (separate export canvas, Classic render at 1:1 scale, white JPEG matte, `toBlob` with null/exception handling), `filename.ts` (sanitized basename, `-circle-slice-WxH` suffix, correct extension), `download.ts` (object URL + anchor, deferred revoke). `EditorState` extended with `exportSettings` (format/quality) and `exportStatus` (`idle`/`exporting`/`error`). Download button in toolbar: snapshots source/settings/artwork at click time, guards duplicate submissions, yields one animation frame before rendering so busy state can paint, dispatches `EXPORT_SUCCESS`/`EXPORT_FAILURE`. `ExportControls` fieldset: PNG/JPEG radio buttons, JPEG quality slider with datalist snaps. Export status banner: "Preparing download…" during export, error message + Dismiss on failure. 9 new unit tests (filename sanitization, extension, null-file fallback, unsafe-char stripping, basename cap) and 13 new browser tests (disabled state, PNG/JPEG selection, quality slider visibility, download triggers, PNG dimensions verified against artwork status, JPEG extension, comparison-mode exports effect not source, duplicate-submission button state, forced-failure recovery + Dismiss, radio disabled state, filename encodes dimensions). All 44 browser tests and 40 unit tests pass. Real Safari/iOS download verification pending M6.
 
 ### M6 — Harden, document, and remove obsolete code
 

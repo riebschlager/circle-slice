@@ -414,6 +414,76 @@ fieldset:disabled {
   font-style: italic;
 }
 
+/* Export controls */
+.export-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.control-label {
+  font-size: 0.875rem;
+}
+
+.radio-group {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.radio-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.875rem;
+  cursor: pointer;
+  user-select: none;
+}
+
+.radio-label input[type='radio'] {
+  accent-color: var(--text);
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+  min-height: 0;
+}
+
+.radio-label input[type='radio']:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+
+/* Export status banner */
+.export-status {
+  font-size: 0.8rem;
+  color: var(--muted);
+  line-height: 1.4;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  padding: 8px 10px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+}
+
+.export-status--error {
+  color: var(--error);
+  border-color: var(--error);
+}
+
+.export-retry {
+  min-height: 30px;
+  padding: 4px 10px;
+  font-size: 0.8rem;
+}
+
+.quality-value {
+  font-family: 'Courier New', monospace;
+  min-width: 3ch;
+}
+
 /* Privacy note */
 .privacy-note {
   font-size: 0.73rem;

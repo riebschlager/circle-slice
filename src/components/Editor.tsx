@@ -1,7 +1,11 @@
 import { useCallback, useEffect, useReducer, useRef } from 'react';
 import { createPreview } from '../render/preview';
 import { DEFAULT_SETTINGS, normalizeSettings } from '../state/settings';
-import { editorReducer, type EditorState } from '../state/editor';
+import {
+  editorReducer,
+  type EditorState,
+  DEFAULT_EXPORT_SETTINGS,
+} from '../state/editor';
 import {
   allocateRequestId,
   importFile,
@@ -15,11 +19,17 @@ import {
 } from '../images/input';
 import { EffectControls } from './EffectControls';
 import { ArtworkControls } from './ArtworkControls';
+import { ExportControls } from './ExportControls';
+import { renderExport } from '../export/render';
+import { makeFilename } from '../export/filename';
+import { downloadBlob } from '../export/download';
 
 const INITIAL_STATE: EditorState = {
   image: null,
   settings: DEFAULT_SETTINGS,
+  exportSettings: DEFAULT_EXPORT_SETTINGS,
   importStatus: { kind: 'idle' },
+  exportStatus: { kind: 'idle' },
   viewMode: 'result',
   latestRequestId: 0,
 };
@@ -49,9 +59,6 @@ export function Editor() {
     const { bitmap, sourceSize, artwork } = state.image;
 
     if (state.viewMode === 'original') {
-      // Show the unmodified source: render it with N=1, rotation=0 but no wash/rings.
-      // We repurpose the preview controller but pass original source without effect.
-      // To show truly unmodified, we draw source directly via a special mode.
       previewRef.current.update({
         source: bitmap,
         sourceSize,
@@ -202,6 +209,14 @@ export function Editor() {
     [],
   );
 
+  // ─── Export settings ─────────────────────────────────────────────────────
+  const handleExportSettingsChange = useCallback(
+    (exportSettings: Readonly<import('../state/editor').ExportSettings>) => {
+      dispatch({ type: 'UPDATE_EXPORT_SETTINGS', exportSettings });
+    },
+    [],
+  );
+
   // ─── Comparison mode ─────────────────────────────────────────────────────
   const toggleViewMode = useCallback(() => {
     dispatch({
@@ -210,8 +225,69 @@ export function Editor() {
     });
   }, [state.viewMode]);
 
+  // ─── Download ────────────────────────────────────────────────────────────
+  const handleDownload = useCallback(() => {
+    const { image, settings, exportSettings, exportStatus } = state;
+    if (!image || exportStatus.kind === 'exporting') return;
+
+    // Snapshot the source and settings at the moment of click.
+    // Subsequent edits/imports must not alter the in-flight result.
+    const snapshotSource = image.bitmap;
+    const snapshotSourceSize = { ...image.sourceSize };
+    const snapshotArtwork = { ...image.artwork };
+    const snapshotSettings = { ...settings };
+    const snapshotExportSettings = { ...exportSettings };
+    const snapshotFile = image.file;
+
+    dispatch({ type: 'EXPORT_START' });
+
+    // Yield a frame so the "Preparing download…" busy state can paint.
+    requestAnimationFrame(() => {
+      void (async () => {
+        try {
+          const result = await renderExport({
+            input: {
+              source: snapshotSource,
+              sourceSize: snapshotSourceSize,
+              artwork: snapshotArtwork,
+              settings: snapshotSettings,
+            },
+            format: snapshotExportSettings.format,
+            quality: snapshotExportSettings.quality,
+          });
+
+          const filename = makeFilename(
+            snapshotFile,
+            snapshotArtwork,
+            snapshotExportSettings.format,
+          );
+
+          downloadBlob(result.blob, filename);
+          dispatch({ type: 'EXPORT_SUCCESS' });
+        } catch (err) {
+          const message =
+            err instanceof Error
+              ? err.message
+              : 'Export failed. Try a different format or smaller dimensions.';
+          dispatch({ type: 'EXPORT_FAILURE', message });
+        }
+      })();
+    });
+  }, [state]);
+
+  const handleExportReset = useCallback(() => {
+    dispatch({ type: 'EXPORT_RESET' });
+  }, []);
+
   // ─── Status text ─────────────────────────────────────────────────────────
-  const { importStatus, image, settings, viewMode } = state;
+  const {
+    importStatus,
+    exportStatus,
+    image,
+    settings,
+    viewMode,
+    exportSettings,
+  } = state;
   let statusText: string;
   if (importStatus.kind === 'loading') {
     statusText = importStatus.isExample ? 'Loading example…' : 'Loading image…';
@@ -225,7 +301,9 @@ export function Editor() {
   }
 
   const isLoading = importStatus.kind === 'loading';
+  const isExporting = exportStatus.kind === 'exporting';
   const hasError = importStatus.kind === 'error';
+  const hasExportError = exportStatus.kind === 'error';
   const hasImage = image !== null;
 
   const canvasAriaLabel = image
@@ -256,15 +334,17 @@ export function Editor() {
           Reset effect
         </button>
 
-        {/* Download placeholder — implemented in M5 */}
         <button
           type="button"
-          disabled={true}
+          onClick={handleDownload}
+          disabled={!hasImage || isLoading || isExporting}
           className="btn-primary btn-download"
-          aria-disabled="true"
-          title="Download (coming in M5)"
+          aria-busy={isExporting ? 'true' : undefined}
+          aria-disabled={
+            !hasImage || isLoading || isExporting ? 'true' : undefined
+          }
         >
-          Download
+          {isExporting ? 'Preparing…' : 'Download'}
         </button>
       </div>
 
@@ -332,6 +412,37 @@ export function Editor() {
             disabled={isLoading}
             onChange={handleArtworkChange}
           />
+        )}
+
+        <ExportControls
+          exportSettings={exportSettings}
+          disabled={!hasImage || isLoading || isExporting}
+          onChange={handleExportSettingsChange}
+        />
+
+        {/* Export status */}
+        {(isExporting || hasExportError) && (
+          <div
+            role="status"
+            aria-live="polite"
+            className={`export-status${hasExportError ? ' export-status--error' : ''}`}
+          >
+            {isExporting && 'Preparing download…'}
+            {hasExportError && (
+              <>
+                <span>
+                  {exportStatus.kind === 'error' ? exportStatus.message : ''}
+                </span>
+                <button
+                  type="button"
+                  className="btn-secondary export-retry"
+                  onClick={handleExportReset}
+                >
+                  Dismiss
+                </button>
+              </>
+            )}
+          </div>
         )}
 
         <p className="privacy-note">

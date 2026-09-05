@@ -1,6 +1,7 @@
 import type { Size } from '../render/geometry';
 import { type EffectSettings, DEFAULT_SETTINGS } from './settings';
 import type { ImportSuccess } from '../images/lifecycle';
+import type { ExportFormat } from '../export/filename';
 
 /** Status of the current import operation. */
 export type ImportStatus =
@@ -11,6 +12,22 @@ export type ImportStatus =
 
 /** Which canvas the preview currently shows. Export always uses the effect. */
 export type ViewMode = 'result' | 'original';
+
+/** Status of the current export operation. */
+export type ExportStatus =
+  { kind: 'idle' } | { kind: 'exporting' } | { kind: 'error'; message: string };
+
+/** Export format and quality settings, held separately from effect settings. */
+export interface ExportSettings {
+  format: ExportFormat;
+  /** 0–1. Only applied for JPEG. */
+  quality: number;
+}
+
+export const DEFAULT_EXPORT_SETTINGS: Readonly<ExportSettings> = Object.freeze({
+  format: 'png',
+  quality: 0.92,
+});
 
 /** Stable image source owned by the editor. Close bitmap on replacement. */
 export interface ImageSource {
@@ -24,7 +41,9 @@ export interface ImageSource {
 export interface EditorState {
   image: ImageSource | null;
   settings: Readonly<EffectSettings>;
+  exportSettings: Readonly<ExportSettings>;
   importStatus: ImportStatus;
+  exportStatus: ExportStatus;
   viewMode: ViewMode;
   /** The highest request ID that has been allocated, used by isLatest(). */
   latestRequestId: number;
@@ -41,7 +60,12 @@ export type EditorAction =
   | { type: 'UPDATE_SETTINGS'; settings: Readonly<EffectSettings> }
   | { type: 'RESET_SETTINGS' }
   | { type: 'SET_ARTWORK'; artwork: Size }
-  | { type: 'SET_VIEW_MODE'; mode: ViewMode };
+  | { type: 'SET_VIEW_MODE'; mode: ViewMode }
+  | { type: 'UPDATE_EXPORT_SETTINGS'; exportSettings: Readonly<ExportSettings> }
+  | { type: 'EXPORT_START' }
+  | { type: 'EXPORT_SUCCESS' }
+  | { type: 'EXPORT_FAILURE'; message: string }
+  | { type: 'EXPORT_RESET' };
 
 // ---------------------------------------------------------------------------
 // Reducer
@@ -108,6 +132,24 @@ export function editorReducer(
 
     case 'SET_VIEW_MODE':
       return { ...state, viewMode: action.mode };
+
+    case 'UPDATE_EXPORT_SETTINGS':
+      return { ...state, exportSettings: action.exportSettings };
+
+    case 'EXPORT_START':
+      return { ...state, exportStatus: { kind: 'exporting' } };
+
+    case 'EXPORT_SUCCESS':
+      return { ...state, exportStatus: { kind: 'idle' } };
+
+    case 'EXPORT_FAILURE':
+      return {
+        ...state,
+        exportStatus: { kind: 'error', message: action.message },
+      };
+
+    case 'EXPORT_RESET':
+      return { ...state, exportStatus: { kind: 'idle' } };
 
     default:
       return state;
