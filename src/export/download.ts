@@ -6,15 +6,15 @@
  */
 export function downloadBlob(blob: Blob, filename: string): void {
   const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
   try {
-    const a = document.createElement('a');
     a.href = url;
     a.download = filename;
     a.style.display = 'none';
     document.body.appendChild(a);
     a.click();
-    document.body.removeChild(a);
   } finally {
+    a.remove();
     // Defer revocation slightly so the browser can initiate the download.
     setTimeout(() => URL.revokeObjectURL(url), 10_000);
   }

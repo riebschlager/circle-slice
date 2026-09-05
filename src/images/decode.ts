@@ -10,17 +10,15 @@ const SIGNATURES: Array<{ mime: string; bytes: Uint8Array; offset?: number }> =
     },
     {
       mime: 'image/png',
-      bytes: new Uint8Array([0x89, 0x50, 0x4e, 0x47]),
+      bytes: new Uint8Array([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]),
     },
     {
       mime: 'image/webp',
       bytes: new Uint8Array([0x52, 0x49, 0x46, 0x46]),
       offset: 0,
-      // WebP has "WEBP" at byte 8; we check just the RIFF header and rely on decode to reject other RIFF.
+      // detectMime also verifies the WEBP marker at byte 8.
     },
   ];
-
-const ACCEPTED_MIMES = new Set(SIGNATURES.map((s) => s.mime));
 
 export type DecodeError =
   | 'too-large'
@@ -30,8 +28,13 @@ export type DecodeError =
   | 'corrupt'
   | 'unknown';
 
+export type DecodedImage =
+  | ImageBitmap
+  | (HTMLImageElement & { close(): void })
+  | (HTMLCanvasElement & { close(): void });
+
 export interface DecodeResult {
-  bitmap: ImageBitmap;
+  bitmap: DecodedImage;
   sourceSize: Size;
 }
 
@@ -64,6 +67,11 @@ function detectMime(header: Uint8Array): string | null {
         break;
       }
     }
+    if (match && sig.mime === 'image/webp') {
+      match =
+        header.length >= 12 &&
+        String.fromCharCode(...header.slice(8, 12)) === 'WEBP';
+    }
     if (match) return sig.mime;
   }
   return null;
@@ -80,14 +88,10 @@ export async function decodeImageFile(file: File): Promise<DecodeResult> {
   // Read just enough bytes for signature detection.
   const header = new Uint8Array(await file.slice(0, 16).arrayBuffer());
   const detectedMime = detectMime(header);
-  if (!detectedMime) {
-    // Check file.type as a secondary signal before rejecting entirely.
-    const normalizedType = file.type.toLowerCase().split(';')[0]!.trim();
-    if (!ACCEPTED_MIMES.has(normalizedType)) throw mkErr('unsupported-format');
-  }
+  if (!detectedMime) throw mkErr('unsupported-format');
 
   // Primary path: createImageBitmap with orientation-respecting options.
-  let bitmap: ImageBitmap | null = null;
+  let bitmap: DecodedImage | null = null;
   try {
     bitmap = await createImageBitmap(file, {
       resizeQuality: 'high',
@@ -120,7 +124,7 @@ export async function decodeImageFile(file: File): Promise<DecodeResult> {
   return { bitmap, sourceSize };
 }
 
-async function fallbackDecode(file: File): Promise<ImageBitmap> {
+async function fallbackDecode(file: File): Promise<DecodedImage> {
   const url = URL.createObjectURL(file);
   try {
     const img = new Image();
@@ -128,7 +132,13 @@ async function fallbackDecode(file: File): Promise<ImageBitmap> {
     await img.decode();
     if (img.naturalWidth === 0 || img.naturalHeight === 0)
       throw mkErr('corrupt');
-    return await createImageBitmap(img);
+    img.width = img.naturalWidth;
+    img.height = img.naturalHeight;
+    return Object.assign(img, {
+      close() {
+        img.removeAttribute('src');
+      },
+    });
   } catch (err) {
     if (isDecodeErr(err)) throw err;
     throw mkErr('corrupt');
@@ -152,4 +162,36 @@ function isDecodeErr(e: unknown): e is DecodeErrObj {
 export function classifyDecodeError(err: unknown): DecodeError {
   if (isDecodeErr(err)) return err.__decodeError;
   return 'unknown';
+}
+
+/** Resize full source bounds, including an image-element/canvas fallback. */
+export async function resizePreview(
+  source: DecodedImage,
+  width: number,
+  height: number,
+): Promise<DecodedImage> {
+  try {
+    return await createImageBitmap(source, {
+      resizeWidth: width,
+      resizeHeight: height,
+      resizeQuality: 'high',
+    });
+  } catch {
+    const canvas = document.createElement('canvas');
+    canvas.width = width;
+    canvas.height = height;
+    try {
+      const ctx = canvas.getContext('2d');
+      if (!ctx) throw new Error('Canvas rendering is unavailable');
+      ctx.drawImage(source, 0, 0, width, height);
+      return Object.assign(canvas, {
+        close() {
+          canvas.width = canvas.height = 0;
+        },
+      });
+    } catch (error) {
+      canvas.width = canvas.height = 0;
+      throw error;
+    }
+  }
 }

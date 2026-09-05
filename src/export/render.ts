@@ -42,36 +42,34 @@ export async function renderExport(
   canvas.width = width;
   canvas.height = height;
 
-  const ctx = canvas.getContext('2d');
-  if (!ctx) throw new Error('Canvas 2D rendering context is unavailable');
+  try {
+    const ctx = canvas.getContext('2d');
+    if (!ctx) throw new Error('Canvas 2D rendering context is unavailable');
+    renderClassic(ctx, input, { scale: 1, x: 0, y: 0 });
 
-  // JPEG requires an opaque matte because it cannot encode transparency.
-  if (format === 'jpeg') {
-    ctx.fillStyle = '#ffffff';
-    ctx.fillRect(0, 0, width, height);
-  }
-
-  // Render at 1:1 scale — export canvas is exactly the artwork size.
-  renderClassic(ctx, input, { scale: 1, x: 0, y: 0 });
-
-  const mimeType = format === 'jpeg' ? 'image/jpeg' : 'image/png';
-  const blob = await new Promise<Blob | null>((resolve) => {
-    try {
-      canvas.toBlob(resolve, mimeType, quality);
-    } catch {
-      resolve(null);
+    // Flatten the completed artwork; Classic clears its context before drawing.
+    if (format === 'jpeg') {
+      ctx.globalCompositeOperation = 'destination-over';
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(0, 0, width, height);
+      ctx.globalCompositeOperation = 'source-over';
     }
-  });
-
-  // Clean up immediately — do not keep the canvas alive.
-  canvas.width = 0;
-  canvas.height = 0;
-
-  if (!blob) {
-    throw new Error(
-      `Failed to encode the artwork as ${format.toUpperCase()}. Try a different format or smaller dimensions.`,
-    );
+    const mimeType = format === 'jpeg' ? 'image/jpeg' : 'image/png';
+    const blob = await new Promise<Blob | null>((resolve, reject) => {
+      try {
+        canvas.toBlob(resolve, mimeType, quality);
+      } catch (error) {
+        reject(error);
+      }
+    });
+    if (!blob || blob.size === 0 || blob.type !== mimeType) {
+      throw new Error(
+        `Failed to encode the artwork as ${format.toUpperCase()}. Try a different format or smaller dimensions.`,
+      );
+    }
+    return { blob, mimeType: blob.type };
+  } finally {
+    canvas.width = 0;
+    canvas.height = 0;
   }
-
-  return { blob, mimeType: blob.type || mimeType };
 }

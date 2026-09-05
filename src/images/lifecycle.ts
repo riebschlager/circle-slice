@@ -3,8 +3,10 @@ import {
   classifyDecodeError,
   decodeErrorMessage,
   type DecodeResult,
+  type DecodedImage,
+  resizePreview,
 } from './decode';
-import { sourceArtworkSize } from '../render/sizing';
+import { LIMITS, sourceArtworkSize } from '../render/sizing';
 import type { Size } from '../render/geometry';
 
 /** A monotonically-increasing counter for import requests. */
@@ -15,11 +17,12 @@ export function allocateRequestId(): number {
 
 export interface ImportSuccess {
   requestId: number;
-  bitmap: ImageBitmap;
+  bitmap: DecodedImage;
   sourceSize: Size;
   artwork: Size;
   /** Original file, kept for export; null for the bundled example. */
   file: File | null;
+  sourceBlob?: Blob | undefined;
 }
 
 export interface ImportFailure {
@@ -59,6 +62,33 @@ export async function importFile(
     result.bitmap.close();
     return null;
   }
+  // Keep the complete source bounds in a bounded preview; export decodes the File.
+  if (result.bitmap.width * result.bitmap.height > LIMITS.previewPixels) {
+    const scale = Math.sqrt(
+      LIMITS.previewPixels / result.bitmap.width / result.bitmap.height,
+    );
+    const full = result.bitmap;
+    try {
+      result.bitmap = await resizePreview(
+        full,
+        Math.max(1, Math.floor(full.width * scale)),
+        Math.max(1, Math.floor(full.height * scale)),
+      );
+    } catch {
+      if (!isLatest()) return null;
+      return {
+        ok: false,
+        requestId,
+        message: 'Could not prepare the preview. Try a smaller image.',
+      };
+    } finally {
+      full.close();
+    }
+    if (!isLatest()) {
+      result.bitmap.close();
+      return null;
+    }
+  }
   const artwork = sourceArtworkSize(result.sourceSize);
   return {
     ok: true,
@@ -80,19 +110,21 @@ export async function importExample(
   requestId: number,
   isLatest: () => boolean,
 ): Promise<ImportOutcome | null> {
-  let bitmap: ImageBitmap;
+  let bitmap: DecodedImage;
   let sourceSize: Size;
+  let sourceBlob: Blob;
   try {
     const response = await fetch(url);
     if (!response.ok)
       throw new Error(`Fetch failed: ${response.status.toString()}`);
     const blob = await response.blob();
+    sourceBlob = blob;
     if (!isLatest()) return null;
-    bitmap = await createImageBitmap(blob, {
-      resizeQuality: 'high',
-      imageOrientation: 'from-image',
-    });
-    sourceSize = { width: bitmap.width, height: bitmap.height };
+    const result = await decodeImageFile(
+      new File([blob], 'example.png', { type: blob.type }),
+    );
+    bitmap = result.bitmap;
+    sourceSize = result.sourceSize;
   } catch {
     if (!isLatest()) return null;
     const fakeFile = { name: 'example' } as File;
@@ -114,5 +146,6 @@ export async function importExample(
     sourceSize,
     artwork,
     file: null,
+    sourceBlob,
   };
 }

@@ -157,14 +157,22 @@ test('selecting the square preset changes artwork to square dimensions', async (
 
 // ─── Keyboard navigation ──────────────────────────────────────────────────────
 
-test('Open image button in toolbar is keyboard reachable', async ({ page }) => {
+test('Open image button in toolbar is keyboard reachable', async ({
+  page,
+  browserName,
+}) => {
   await page.goto('./');
   const open = page
     .getByRole('toolbar')
     .getByRole('button', { name: 'Open image', exact: true });
   await expect(page.getByRole('status')).toContainText('Classic');
   await expect(open).toBeEnabled();
-  await page.keyboard.press('Tab');
+  // macOS WebKit uses Option-Tab for all controls with its default keyboard preference.
+  await page.keyboard.press(
+    browserName === 'webkit' && process.platform === 'darwin'
+      ? 'Alt+Tab'
+      : 'Tab',
+  );
   await expect(open).toBeFocused();
 });
 

@@ -121,6 +121,10 @@ h1 span {
 .preview-surface {
   position: relative;
   aspect-ratio: 4 / 3;
+  width: min(100%, calc(70svh * var(--artwork-ratio, 1.333333)));
+  min-width: 2px;
+  max-height: 70svh;
+  margin-inline: auto;
   background: var(--surface);
 }
 
@@ -363,6 +367,7 @@ fieldset:disabled {
 
 .dimension-row {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 6px;
 }

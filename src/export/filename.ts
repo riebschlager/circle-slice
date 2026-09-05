@@ -7,7 +7,7 @@
  */
 
 // eslint-disable-next-line no-control-regex
-const UNSAFE = /[<>"'/\\|?*\x00-\x1f]/g;
+const UNSAFE = /[:<>"'/\\|?*\x00-\x1f]/g;
 const MULTI_DASH = /-{2,}/g;
 const LEADING_TRAILING = /^[-.\s]+|[-.\s]+$/g;
 

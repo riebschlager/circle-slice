@@ -61,9 +61,7 @@ export function EffectControls({
   const [invalid, setInvalid] = useState<
     Partial<Record<keyof EffectSettings, true>>
   >({});
-  const resetTimeoutsRef = useRef<
-    Partial<Record<keyof EffectSettings, ReturnType<typeof setTimeout>>>
-  >({});
+  const skipBlur = useRef(false);
 
   // Sync drafts back to null when external settings change (e.g. Reset).
   const prevSettings = useRef(settings);
@@ -77,7 +75,7 @@ export function EffectControls({
 
   const commitField = useCallback(
     (key: keyof EffectSettings, raw: string) => {
-      const parsed = parseFloat(raw);
+      const parsed = raw.trim() ? Number(raw) : NaN;
       const normalized = normalizeSettings(
         { ...settings, [key]: parsed },
         settings,
@@ -86,14 +84,6 @@ export function EffectControls({
         // Revert and show a brief invalid hint.
         setInvalid((prev) => ({ ...prev, [key]: true }));
         setDrafts((prev) => ({ ...prev, [key]: null }));
-        clearTimeout(resetTimeoutsRef.current[key]);
-        resetTimeoutsRef.current[key] = setTimeout(() => {
-          setInvalid((prev) => {
-            const next = { ...prev };
-            delete next[key];
-            return next;
-          });
-        }, 2500);
         return;
       }
       setInvalid((prev) => {
@@ -152,12 +142,18 @@ export function EffectControls({
                     [field.key]: e.currentTarget.value,
                   }));
                 }}
-                onBlur={(e) => commitField(field.key, e.currentTarget.value)}
+                onBlur={(e) => {
+                  if (skipBlur.current) {
+                    skipBlur.current = false;
+                    return;
+                  }
+                  commitField(field.key, e.currentTarget.value);
+                }}
                 onKeyDown={(e) => {
                   if (e.key === 'Enter') {
-                    commitField(field.key, e.currentTarget.value);
                     e.currentTarget.blur();
                   } else if (e.key === 'Escape') {
+                    skipBlur.current = true;
                     setDrafts((prev) => ({ ...prev, [field.key]: null }));
                     e.currentTarget.blur();
                   }

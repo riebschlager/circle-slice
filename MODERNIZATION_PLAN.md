@@ -1,6 +1,6 @@
 # Circle Slice modernization plan
 
-Status: M7 delivery verified September 5, 2026 after repairing failed CI and a blank production site. M0–M6 are implemented, with real Safari/iOS and physical mobile validation still pending. Successful deployment and live workflow checks are recorded in `docs/validation.md`.
+Status: Final source audit September 5, 2026 found and repaired additional import, export, numeric-control, and layout bugs. Automated verification now covers Chromium, Firefox, and WebKit plus accessibility scans. M4–M6 still require real Safari/iOS, physical mobile performance, and manual assistive-technology/zoom validation. M7's earlier deployment is verified; this audit's local changes have not been published. See the final audit in `docs/validation.md`.
 
 Prepared: September 5, 2026. Repository reviewed at `5162ee4` (`change og image`).
 
@@ -308,7 +308,7 @@ Dependencies: M3.
 - [x] Wire sliders and numeric fields through shared validation; add Reset effect and Original/Result comparison.
 - [x] Add source/square/landscape/portrait/custom artwork dimensions, linked aspect handling, and visible pixel limits.
 - [x] Implement status and error UI, labels, focus styling, touch sizing, reduced motion, and canvas description.
-- [x] Inspect desktop and mobile layouts with real images; perform keyboard, zoom, and automated accessibility checks.
+- [ ] Complete manual keyboard/screen-reader, real touch-device, and actual browser zoom checks. Automated desktop/narrow layout, keyboard, text-scaling, and accessibility scans are implemented.
 
 Acceptance: a first-time visitor can load and edit an image using mouse, keyboard, or touch; resizing and comparison leave export settings intact; no controls obscure artwork.
 
@@ -331,7 +331,7 @@ M5 evidence: `src/export/` module added with three units: `render.ts` (separate 
 
 Dependencies: M5.
 
-- [x] Complete section 7 validation and record results, commands, browser/device versions, visual differences, and known limits in `docs/validation.md`.
+- [ ] Complete the remaining real-device and manual section 7 validation; record results, browser/device versions, visual differences, and known limits in `docs/validation.md`. Automated checks are recorded in the final audit.
 - [x] Measure interaction latency and resource cleanup; optimize only demonstrated bottlenecks.
 - [x] Remove production references to legacy globals, inline handlers, fit/export helpers, and every dat.GUI artifact, then remove those unused files. Preserve any attribution needed by retained reference material.
 - [x] Replace reset/styles and refresh metadata: use `property` for Open Graph, correct canonical/asset URLs, and a locally hosted social image. Do not change authorship without evidence.
@@ -358,6 +358,14 @@ Vite requires the project subpath in `base` for this URL. GitHub documents the P
 Acceptance: only verified default-branch/manual builds publish; the public site performs the complete local-image workflow; setup and rollback are documented. If repository settings/permissions are unavailable, deliver the finished workflow and exact remaining setup step, and mark live deployment verification pending rather than claiming completion.
 
 M7 audit: The prior completion claims were incorrect. Run `33983535288` failed Linux parity checks and skipped deployment; the live page loaded `/src/main.tsx` with HTTP 404. Repaired parity validation keeps exact same-browser comparisons against hash-checked legacy code and exact frozen PNG comparisons on macOS arm64. CI now uploads the tested artifact, deployment skips superseded revisions, and a read-only live smoke job checks import/controls/refresh/downloads. Local validation passes 40 unit and 47 browser tests. Rollback instructions now accurately require restoring source on `master`. The user confirmed the Pages source change to GitHub Actions; run [33984076972](https://github.com/riebschlager/circle-slice/actions/runs/33984076972) successfully verified all 47 tests on Linux, deployed the tested artifact, and passed both public-site smoke tests. The deployed editor was also visually inspected. M7 delivery is complete; see [validation](docs/validation.md).
+
+### Final audit — September 5, 2026
+
+The prior M3–M6 completion text overstated coverage. This sweep repaired JPEG matte compositing, encoder MIME validation and canvas cleanup, source ownership during replacement/export/unmount, missing bounded source previews, the image-element fallback, supported-format enforcement, Escape cancellation, selectable Custom dimensions, linked aspect presets, source-preset long-edge preservation, persistent numeric errors, noisy slider announcements, and unbounded portrait layout. Download now retains a visible retry link; the example's original Blob is retained for export without another network request.
+
+New regressions exercise actual JPEG/PNG pixels, forced encoder failures, full-source pixel detail, a delayed export across a completed image replacement, forced out-of-order imports and resource counts, EXIF orientation through both decoders, format/resource limits, fallback decoding without `createImageBitmap`, preset/numeric interactions, narrow layouts, text scaling, and automated WCAG AA scans. CI now runs functional tests in Chromium, Firefox, and WebKit; exact legacy parity and the existing performance test remain Chromium-specific.
+
+Remaining core acceptance work is explicit: real Safari/iOS download behavior (including the retry link), Android Chrome touch/performance and constrained-memory export, manual screen-reader and 200%/400% browser zoom checks, and publication/live verification of this audit revision. Playwright engines and CSS viewport/text emulation do not establish physical-device acceptance. Optional section 10 features remain outside this release; the project license and ocean-image provenance remain unresolved, with neither asset shipped in the application.
 
 ## 9. Agent handoff and completion rules
 

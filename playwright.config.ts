@@ -13,7 +13,23 @@ export default defineConfig({
     trace: 'retain-on-failure',
     screenshot: 'only-on-failure',
   },
-  projects: [{ name: 'chromium', use: { ...devices['Desktop Chrome'] } }],
+  projects: [
+    { name: 'chromium', use: { ...devices['Desktop Chrome'] } },
+    ...(!liveURL
+      ? [
+          {
+            name: 'firefox',
+            use: { ...devices['Desktop Firefox'] },
+            testIgnore: ['**/rendering.spec.ts', '**/perf.spec.ts'],
+          },
+          {
+            name: 'webkit',
+            use: { ...devices['Desktop Safari'] },
+            testIgnore: ['**/rendering.spec.ts', '**/perf.spec.ts'],
+          },
+        ]
+      : []),
+  ],
   webServer: liveURL
     ? []
     : {

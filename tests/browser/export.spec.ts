@@ -1,6 +1,5 @@
 import { expect, test, type Page } from '@playwright/test';
 import { readFile } from 'node:fs/promises';
-import * as path from 'node:path';
 
 // Helper: wait for the status role element to contain text.
 async function waitForStatus(page: Page, text: string | RegExp) {
@@ -85,7 +84,7 @@ test('clicking Download triggers a file download', async ({ page }) => {
 
 test('downloaded PNG has correct dimensions matching the artwork', async ({
   page,
-}) => {
+}, testInfo) => {
   await page.goto('./');
   await waitForStatus(page, /Classic/);
 
@@ -105,7 +104,7 @@ test('downloaded PNG has correct dimensions matching the artwork', async ({
   ]);
 
   // Read the downloaded PNG and check dimensions.
-  const savePath = path.join('tests', 'browser', '.download-tmp.png');
+  const savePath = testInfo.outputPath('download.png');
   await download.saveAs(savePath);
 
   // Use Playwright's built-in image decoding to verify dimensions.
@@ -162,28 +161,45 @@ test('Download while viewing Original still exports the effect (Classic result)'
 
 // ─── Duplicate-submission protection ─────────────────────────────────────────
 
-test('Download button is disabled while export is in progress', async ({
+test('Download button blocks duplicate submissions while encoding is pending', async ({
   page,
 }) => {
   await page.goto('./');
   await waitForStatus(page, /Classic/);
-
-  const downloadBtn = page
+  await page.evaluate(() => {
+    const original = HTMLCanvasElement.prototype.toBlob;
+    HTMLCanvasElement.prototype.toBlob = function (callback, type, quality) {
+      Object.assign(window, {
+        finishEncoding: () => {
+          HTMLCanvasElement.prototype.toBlob = original;
+          original.call(this, callback, type, quality);
+        },
+      });
+    };
+  });
+  const downloads: string[] = [];
+  page.on('download', (download) =>
+    downloads.push(download.suggestedFilename()),
+  );
+  await page
     .getByRole('toolbar')
-    .getByRole('button', { name: /Preparing|Download/ });
-
-  // Click download; immediately check state before it resolves.
-  await downloadBtn.click();
-
-  // The button should briefly show "Preparing…" and be disabled.
-  // We poll quickly after the click.
+    .getByRole('button', { name: 'Download' })
+    .evaluate((button: HTMLButtonElement) => {
+      button.click();
+      button.click();
+    });
   await expect(
     page.getByRole('toolbar').getByRole('button', { name: 'Preparing…' }),
-  )
-    .toBeDisabled({ timeout: 3000 })
-    .catch(() => {
-      // It may resolve too quickly on fast machines — that's OK.
-    });
+  ).toBeDisabled();
+  await expect
+    .poll(() => page.evaluate(() => 'finishEncoding' in window))
+    .toBe(true);
+  const downloaded = page.waitForEvent('download');
+  await page.evaluate(() =>
+    (window as unknown as { finishEncoding(): void }).finishEncoding(),
+  );
+  await downloaded;
+  expect(downloads).toHaveLength(1);
 });
 
 // ─── Error recovery ───────────────────────────────────────────────────────────

@@ -17,12 +17,14 @@ Circle Slice is a small, client-side creative tool for exploring concentric circ
   - **Reset effect**: Quickly restore the signature 10-slice / 10° defaults without altering imported images or chosen dimensions.
 - **Flexible Artwork Dimensions**:
   - Presets: Source aspect ratio, 1:1 Square, 4:3 Landscape, 3:4 Portrait.
-  - Custom: Explicit pixel width and height inputs with real-time limit messaging.
+  - Presets link width and height; Source restores the source ratio while preserving the current long edge without upscaling.
+  - Custom: Independent integer width and height inputs with persistent limit messaging. Escape cancels an edit.
   - Dimensions are stable and independent of browser window resizing.
 - **Original / Result Comparison**: Keyboard-accessible comparison toggle to view the original uncovered image alongside the effect.
 - **Full-Resolution Export**:
   - Independent export canvas rendered at exact requested artwork dimensions from the full-resolution source (not an enlarged preview screenshot).
   - PNG export with transparency preservation or JPEG export with a white matte and selectable quality.
+  - A visible **Download again** link remains available until the next export or page close.
   - Automatic sanitized filenames with dimensions (`{name}-circle-slice-{W}x{H}.{ext}`).
 
 ## Privacy
@@ -32,7 +34,7 @@ Circle Slice is a small, client-side creative tool for exploring concentric circ
 - Processing happens entirely within your web browser using HTML5 Canvas 2D.
 - No files, image data, or filenames are uploaded to any server or remote endpoint.
 - No image bytes are saved to browser storage (`localStorage`, `IndexedDB`, or cookies).
-- All application assets, fonts, and examples are self-contained and served locally.
+- Loading the website requests static assets from GitHub Pages; images you choose are processed locally. Fonts and examples are bundled with the application.
 
 ## Supported Formats and Resource Limits
 
@@ -42,6 +44,10 @@ Circle Slice is a small, client-side creative tool for exploring concentric circ
 | **Input size**    | Up to 30 MiB                   | 40 million decoded pixels, 12,000 px on any axis     |
 | **Export size**   | PNG or JPEG (quality 0.75–1.0) | Up to 16 million pixels, 8,192 px on any axis        |
 | **Preview**       | Canvas 2D                      | Bounded at 2 million backing pixels, DPR capped at 2 |
+
+Animated PNG/WebP inputs produce a still image; animation is not preserved. HEIC/HEIF, RAW, SVG, and GIF are unsupported. Dimensions are checked after decoding, so rejecting an oversized image does not eliminate the initial peak-memory cost. Large images retain a preview capped at 2 MP; export temporarily decodes the original again. These limits remain provisional until physical mobile testing is complete.
+
+Browser encoders determine color handling and output metadata. Original EXIF metadata is not deliberately copied; print DPI, HDR, and wide-gamut preservation are not guaranteed. Automated workflows cover Chromium, Firefox, and Playwright WebKit. Real Safari/iOS, Android device performance, and manual assistive-technology testing remain pending; see [validation](docs/validation.md).
 
 ## How the Effect Works
 
@@ -75,6 +81,7 @@ nvm use
 
 # Install dependencies from locked manifest
 npm ci
+npx playwright install chromium firefox webkit
 
 # Start the local development server
 npm run dev

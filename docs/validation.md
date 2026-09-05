@@ -1,5 +1,7 @@
 # Validation record
 
+Current release status: see [Final source audit](#final-source-audit--september-5-2026). Earlier milestone entries are historical; their M3–M6 completion and coverage claims were found to be too broad. Real-device and manual accessibility acceptance remains open.
+
 ## M0 — Establish visual references and record decisions
 
 Completed September 5, 2026. Application revision: `5162ee4`. Production HTML, JavaScript, CSS, and the ocean image remain unchanged. The pre-existing README edit and modernization plan were preserved.
@@ -183,3 +185,34 @@ Reopened and completed during the September 5, 2026 audit. The previous completi
 **Production validation:** Repair commit `01623db925edf12f1cef4eabb80240e9695e2c24` was pushed to `master`. The user confirmed changing Pages source to GitHub Actions. [Run 33984076972](https://github.com/riebschlager/circle-slice/actions/runs/33984076972) completed successfully: Linux verification (40 unit tests, 47 browser tests), deployment of the verified artifact, and both live smoke tests. These exercise direct load/refresh, local assets and social card, 320 px layout, picker import, slice edits, comparison, and downloaded PNG/JPEG decoding at the displayed dimensions. The public editor was additionally visually inspected in the Codex browser: artwork and controls rendered correctly. The formerly blank site now works.
 
 **Remaining:** No M7 delivery tasks. Real Safari/iOS and physical mobile checks remain outstanding from M5/M6; Chromium does not substitute for them.
+
+## Final source audit — September 5, 2026
+
+**Findings and repairs:**
+
+- JPEG's white matte was painted before Classic cleared the canvas, producing dark backgrounds for transparent inputs. The completed result is now flattened onto white. Encoder output is checked for nonempty content and the requested MIME, and the export canvas is released on all exit paths.
+- Reducer-side bitmap disposal was impure and could invalidate a source still borrowed by preview/export. Disposal now belongs to the editor lifecycle, after preview replacement. Export captures original bytes and obtains its own full-resolution decode. Queued export work is canceled on unmount; pending decode results are disposed. The example Blob is retained, so exporting it does not refetch the example.
+- Source previews were previously full-resolution despite the M3 checkbox. Imports now retain at most 2 MP of decoded preview pixels, with original source bounds preserved for geometry. The HTML image fallback now works without `createImageBitmap`, and a canvas fallback handles preview scaling.
+- MIME hints previously permitted unsupported files to reach decoders. Accepted signatures now require JPEG, the full PNG signature, or RIFF plus WEBP. File type and extension cannot opt SVG/GIF into support.
+- Escape previously committed edits through blur; Custom could not be selected; presets did not link axes; Source replaced the long edge with native size; fractional dimensions were truncated. These now follow the plan. Errors remain visible until corrected, and settings/dimensions are also validated at reducer entry points.
+- The main picker was disabled during example loading, preventing a user from superseding a stalled example. It now remains available. A visible Download again link retains the latest successful file; URL replacement/unmount and temporary-anchor cleanup are explicit.
+- Slider changes no longer trigger a polite live announcement on every step. Extremely tall artwork previews are bounded by viewport height, and dimension controls can wrap when text is enlarged.
+
+**New evidence:** `tests/browser/audit.spec.ts` checks JPEG white pixels and PNG alpha, wrong-MIME/empty-blob failures and canvas cleanup, Escape cancellation and persistent validation, linked presets and Custom selection, decoding/export without `createImageBitmap`, picker supersession of a stalled example, bounded preview and one-pixel full-source detail, spoofed-format rejection, EXIF rotation through both decoder paths, byte-identical exports across a deliberately delayed decode and completed image replacement, deliberately out-of-order imports, retained bitmap counts across six actual editor replacements, supported WebP roundtrip where encoding exists, resource limits, extreme portrait sizing, and doubled text. The full-source detail check measures output pixels, not just file dimensions. Resource limit tests use stub decoded dimensions to avoid deliberately allocating oversized browser surfaces.
+
+Automated axe-core WCAG A/AA scans run at desktop and 320 CSS pixels in Chromium, Firefox, and WebKit with zero violations. This supplements the keyboard assertions and does not establish screen-reader or full WCAG conformance. The macOS WebKit keyboard test uses Option-Tab, matching [Apple's documented navigation behavior](https://support.apple.com/guide/safari/keyboard-shortcuts-and-gestures-cpsh003/mac); Linux uses Tab.
+
+**Environment:** macOS arm64; Node 24.20.0; Playwright 1.63.0; Chromium 153.0.8010.12, Firefox 155.0, WebKit 26.6; axe-core Playwright integration 4.13.0. Chromium-specific parity/DPR/performance suites remain separate from cross-engine functional coverage. Frozen reference PNGs, hashes, and tolerances are unchanged.
+
+**Final automated results:** `npm run check` passed formatting, ESLint, strict TypeScript, 42 unit tests, the production build, and 164 browser tests (60 Chromium, 52 Firefox, 52 WebKit). This includes all 108 exact same-browser Classic reference cases and unchanged macOS PNG comparisons. `npm install` reported zero audited dependency vulnerabilities. After the final announcement/duplicate-submission adjustments, formatting, lint, types, build, and all 12 affected browser workflow checks passed again. `git diff --check` passes. CI has been updated to install all three engines; its Linux run for this local revision remains pending publication.
+
+**Visual review:** The 1280 × 800 desktop capture and 320 × 800 portrait capture were inspected. Artwork, toolbar, labels, fields, and export controls are legible and in normal document flow. Text at 200% reflows without horizontal overflow at 320 CSS pixels. This is viewport/text emulation, not a physical touch or browser zoom test.
+
+**Corrections to earlier evidence:** The original export tests mostly checked filenames and PNG dimensions; they did not establish JPEG matte correctness, full-source detail, or consistency across replacement. The original A→B test dispatched two files without forcing completion order or asserting the winning filename. The earlier M6 import coverage list named EXIF/size/fallback cases without matching browser evidence. Those gaps are covered by the new regressions described above. The existing 12 MP benchmark measures the renderer over 50 samples; it does not establish a five-second physical mobile input-to-display benchmark or browser heap stability.
+
+**Remaining release acceptance:**
+
+- Real Safari/iOS picker/download/retry behavior, actual Android Chrome touch use, and physical midrange-device latency/constrained-memory exports.
+- Manual screen-reader workflow, actual browser zoom at 200%/400%, and branded stable Chrome/Edge/Safari checks. Playwright's bundled engines do not substitute for those exact products/devices.
+- Publish this audit revision and repeat CI/live workflow verification. The historical successful M7 deployment is unchanged; this turn has not pushed or deployed source.
+- Project license and legacy ocean-image provenance remain unresolved; neither the legacy ocean nor its baselines is shipped in `dist/`. Optional features remain out of scope.

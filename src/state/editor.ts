@@ -1,5 +1,11 @@
+import type { DecodedImage } from '../images/decode';
+import { assertArtworkSize } from '../render/sizing';
 import type { Size } from '../render/geometry';
-import { type EffectSettings, DEFAULT_SETTINGS } from './settings';
+import {
+  type EffectSettings,
+  DEFAULT_SETTINGS,
+  normalizeSettings,
+} from './settings';
 import type { ImportSuccess } from '../images/lifecycle';
 import type { ExportFormat } from '../export/filename';
 
@@ -31,11 +37,12 @@ export const DEFAULT_EXPORT_SETTINGS: Readonly<ExportSettings> = Object.freeze({
 
 /** Stable image source owned by the editor. Close bitmap on replacement. */
 export interface ImageSource {
-  bitmap: ImageBitmap;
+  bitmap: DecodedImage;
   sourceSize: Size;
   artwork: Size;
   /** Null for the bundled example. */
   file: File | null;
+  sourceBlob?: Blob | undefined;
 }
 
 export interface EditorState {
@@ -90,11 +97,8 @@ export function editorReducer(
     case 'IMPORT_SUCCESS': {
       // Drop stale completions.
       if (action.requestId < state.latestRequestId) {
-        action.bitmap.close();
         return state;
       }
-      // Release the previous bitmap.
-      state.image?.bitmap.close();
       return {
         ...state,
         image: {
@@ -102,6 +106,7 @@ export function editorReducer(
           sourceSize: action.sourceSize,
           artwork: action.artwork,
           file: action.file,
+          sourceBlob: action.sourceBlob,
         },
         importStatus: { kind: 'ready' },
       };
@@ -117,13 +122,21 @@ export function editorReducer(
     }
 
     case 'UPDATE_SETTINGS':
-      return { ...state, settings: action.settings };
+      return {
+        ...state,
+        settings: normalizeSettings(action.settings, state.settings),
+      };
 
     case 'RESET_SETTINGS':
       return { ...state, settings: DEFAULT_SETTINGS };
 
     case 'SET_ARTWORK': {
       if (!state.image) return state;
+      try {
+        assertArtworkSize(action.artwork);
+      } catch {
+        return state;
+      }
       return {
         ...state,
         image: { ...state.image, artwork: action.artwork },
@@ -134,7 +147,15 @@ export function editorReducer(
       return { ...state, viewMode: action.mode };
 
     case 'UPDATE_EXPORT_SETTINGS':
-      return { ...state, exportSettings: action.exportSettings };
+      return {
+        ...state,
+        exportSettings: {
+          format: action.exportSettings.format === 'jpeg' ? 'jpeg' : 'png',
+          quality: Number.isFinite(action.exportSettings.quality)
+            ? Math.min(1, Math.max(0, action.exportSettings.quality))
+            : state.exportSettings.quality,
+        },
+      };
 
     case 'EXPORT_START':
       return { ...state, exportStatus: { kind: 'exporting' } };

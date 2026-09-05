@@ -54,7 +54,7 @@ M7 uses `.github/workflows/deploy.yml`. The default branch was rechecked as `mas
 
 ### Verification and artifact ownership
 
-The read-only `verify` job runs locked install, formatting, lint, strict type checks, unit tests, and Chromium tests against the production build. Only a successful push/manual run on `master` uploads that exact `dist/` with `actions/upload-pages-artifact@v3`. PRs run checks but cannot publish a Pages artifact or deploy.
+The read-only `verify` job runs locked install, formatting, lint, strict type checks, unit tests, and Chromium/Firefox/WebKit functional tests against the production build. Exact legacy parity and performance/DPR tests remain Chromium-specific. Only a successful push/manual run on `master` uploads that exact `dist/` with `actions/upload-pages-artifact@v3`. PRs run checks but cannot publish a Pages artifact or deploy.
 
 The `deploy` job depends on verification and uses `actions/configure-pages@v5` and `actions/deploy-pages@v4`, without rebuilding. Only this job receives `pages: write` and `id-token: write`. The `github-pages` environment and `pages` concurrency group serialize rollouts without cancelling an in-flight deployment. Inside that lock, a read-only API check compares the run SHA with the current `master` SHA and skips superseded revisions. This prevents a slower old verification run from overwriting a newer deployment. A push arriving after the check can still cause a brief older rollout before its own verified deployment.
 
@@ -66,3 +66,13 @@ Checkout, Node setup, and diagnostic artifact actions use their documented v7 re
 
 - **Modern release:** Revert the problematic source changes on `master`, retaining the repaired workflow and test harness, then push. The restored source is verified, deployed, and smoke-tested. Manual dispatch on `master` redeploys its current tip; it cannot deploy an arbitrary historical SHA or another branch. To restore older source, commit that restoration on `master` first.
 - **Legacy site:** The remote `gh-pages` branch was rechecked at `5162ee42862b2c6b6238e3a20118ac6407c8b3f9`. Select “Deploy from a branch”, `gh-pages`, and `/ (root)` in Pages settings, save, and verify the resulting deployment. A branch can move; verify its SHA before using it for rollback. The earlier plan recorded this as the pre-cutover configuration, but its cutover claims were not reliable.
+
+## Final audit: image ownership and export
+
+The reducer is pure. An editor-owned resource set keeps decoded preview sources alive until the new preview input is committed, then closes replaced resources. Unmount invalidates import IDs, closes owned images, and cancels queued export work. Stale decodes are disposed by the import pipeline. The image-element fallback works even when `createImageBitmap` is absent, with a canvas fallback for preview downsampling. Both decoder paths are checked with an EXIF orientation fixture generated in the browser.
+
+User files and the bundled example Blob are retained independently of their decoded previews. Large imports are downsampled to 2 MP without cropping source bounds; oriented source dimensions still determine geometry. Export acquires a separate full-resolution decode from the captured original bytes and releases it in `finally`. This permits subsequent imports and edits without invalidating the pending artwork. Downsampling does not remove initial full-decode peak memory.
+
+JPEG applies a white background behind the completed Classic render using destination-over; applying it before rendering would be erased by Classic's clear. Encoding rejects null, empty, or wrong-MIME blobs and always releases the temporary canvas. The editor retains the latest successful download URL for a visible retry link, revoking it on replacement/unmount. The automatic download URL has a separate deferred cleanup.
+
+Numeric Escape skips blur commit; Enter commits through blur once. Presets explicitly retain their selection and link dimensions, while Custom permits independent integer axes. Source restores the source ratio at the current long edge (capped at native source size). Validation errors persist until corrected. Preview layout is bounded by viewport height, including extreme portrait sizes.

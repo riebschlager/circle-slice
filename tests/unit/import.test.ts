@@ -218,10 +218,10 @@ describe('editorReducer', () => {
     const state = baseState({ latestRequestId: 2 });
     const next = editorReducer(state, action);
     expect(next).toBe(state); // no change
-    expect(closed).toEqual(['stale']); // stale bitmap was closed
+    expect(closed).toEqual([]); // resource disposal belongs to the lifecycle owner
   });
 
-  it('IMPORT_SUCCESS closes the previously owned bitmap', () => {
+  it('IMPORT_SUCCESS is pure and leaves disposal to the lifecycle owner', () => {
     const closed: unknown[] = [];
     const oldBitmap = {
       close: () => closed.push('old'),
@@ -240,7 +240,8 @@ describe('editorReducer', () => {
       file: null,
     };
     editorReducer(state, action);
-    expect(closed).toEqual(['old']);
+    editorReducer(state, action); // React may replay reducers.
+    expect(closed).toEqual([]);
   });
 
   it('IMPORT_FAILURE sets the error message when current', () => {
@@ -290,4 +291,39 @@ describe('editorReducer', () => {
     expect(next.settings).toEqual({ slices: 25, rotation: -10 });
     expect(next.image).toBeNull();
   });
+});
+
+it('file-list fallback returns the same single file without items API', () => {
+  const file = new File(['x'], 'image.png');
+  expect(
+    fileFromDrop({
+      dataTransfer: { files: { length: 1, 0: file } },
+    } as unknown as DragEvent),
+  ).toEqual({ file });
+});
+
+it('reducer validates every settings entry point and preserves invalid artwork', () => {
+  const state = baseState({ image: makeImage() });
+  const changed = editorReducer(state, {
+    type: 'UPDATE_SETTINGS',
+    settings: { slices: 99.9, rotation: NaN },
+  });
+  expect(changed.settings).toEqual({ slices: 50, rotation: 10 });
+  expect(
+    editorReducer(state, {
+      type: 'SET_ARTWORK',
+      artwork: { width: 8193, height: 1 },
+    }),
+  ).toBe(state);
+  expect(
+    editorReducer(state, {
+      type: 'SET_ARTWORK',
+      artwork: { width: 1.5, height: 1 },
+    }),
+  ).toBe(state);
+  const quality = editorReducer(state, {
+    type: 'UPDATE_EXPORT_SETTINGS',
+    exportSettings: { format: 'jpeg', quality: NaN },
+  });
+  expect(quality.exportSettings).toEqual({ format: 'jpeg', quality: 0.92 });
 });

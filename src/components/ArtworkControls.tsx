@@ -55,8 +55,14 @@ function presetSize(
   const sw = sourceSize.width;
   const sh = sourceSize.height;
   switch (preset) {
-    case 'source':
-      return clampArtwork(sw, sh);
+    case 'source': {
+      const longEdge = Math.min(
+        Math.max(currentArtwork.width, currentArtwork.height),
+        Math.max(sw, sh),
+      );
+      const scale = longEdge / Math.max(sw, sh);
+      return clampArtwork(Math.round(sw * scale), Math.round(sh * scale));
+    }
     case 'square': {
       const side = Math.max(currentArtwork.width, currentArtwork.height);
       return clampArtwork(side, side);
@@ -95,7 +101,17 @@ export function ArtworkControls({
   const [wText, setWText] = useState(artwork.width.toString());
   const [hText, setHText] = useState(artwork.height.toString());
   const [invalid, setInvalid] = useState(false);
-  const invalidTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const skipBlur = useRef(false);
+  const [currentPreset, setCurrentPreset] = useState<Preset>(() =>
+    detectPreset(artwork, sourceSize),
+  );
+  const previousSource = useRef(sourceSize);
+  useEffect(() => {
+    if (previousSource.current !== sourceSize) {
+      previousSource.current = sourceSize;
+      setCurrentPreset(detectPreset(artwork, sourceSize));
+    }
+  }, [sourceSize, artwork]);
 
   // Sync text fields when artwork changes externally.
   const prevArtwork = useRef(artwork);
@@ -108,18 +124,26 @@ export function ArtworkControls({
     }
   }, [artwork]);
 
-  const currentPreset = detectPreset(artwork, sourceSize);
-
   const commitCustom = useCallback(
-    (rawW: string, rawH: string) => {
-      const w = parseInt(rawW, 10);
-      const h = parseInt(rawH, 10);
+    (rawW: string, rawH: string, axis: 'width' | 'height') => {
+      let w = rawW.trim() ? Number(rawW) : NaN;
+      let h = rawH.trim() ? Number(rawH) : NaN;
+      const ratio =
+        currentPreset === 'source'
+          ? sourceSize.width / sourceSize.height
+          : currentPreset === 'square'
+            ? 1
+            : currentPreset === 'landscape'
+              ? 4 / 3
+              : 3 / 4;
+      if (currentPreset !== 'custom') {
+        if (axis === 'width') h = Math.max(1, Math.round(w / ratio));
+        else w = Math.max(1, Math.round(h * ratio));
+      }
       if (!Number.isInteger(w) || !Number.isInteger(h) || isOverLimit(w, h)) {
         setInvalid(true);
         setWText(artwork.width.toString());
         setHText(artwork.height.toString());
-        if (invalidTimeout.current) clearTimeout(invalidTimeout.current);
-        invalidTimeout.current = setTimeout(() => setInvalid(false), 2500);
         return;
       }
       setInvalid(false);
@@ -133,11 +157,12 @@ export function ArtworkControls({
       }
       onChange({ width: w, height: h });
     },
-    [artwork, onChange],
+    [artwork, onChange, currentPreset, sourceSize],
   );
 
   const handlePresetChange = useCallback(
     (preset: Preset) => {
+      setCurrentPreset(preset);
       if (preset === 'custom') return; // user must type their own values
       const next = presetSize(preset, sourceSize, artwork);
       onChange(next);
@@ -204,12 +229,18 @@ export function ArtworkControls({
           aria-label="Artwork width in pixels"
           aria-invalid={invalid ? 'true' : undefined}
           onChange={(e) => setWText(e.currentTarget.value)}
-          onBlur={() => commitCustom(wText, hText)}
+          onBlur={() => {
+            if (skipBlur.current) {
+              skipBlur.current = false;
+              return;
+            }
+            commitCustom(wText, hText, 'width');
+          }}
           onKeyDown={(e) => {
             if (e.key === 'Enter') {
-              commitCustom(wText, hText);
               e.currentTarget.blur();
             } else if (e.key === 'Escape') {
+              skipBlur.current = true;
               setWText(artwork.width.toString());
               e.currentTarget.blur();
             }
@@ -228,12 +259,18 @@ export function ArtworkControls({
           aria-label="Artwork height in pixels"
           aria-invalid={invalid ? 'true' : undefined}
           onChange={(e) => setHText(e.currentTarget.value)}
-          onBlur={() => commitCustom(wText, hText)}
+          onBlur={() => {
+            if (skipBlur.current) {
+              skipBlur.current = false;
+              return;
+            }
+            commitCustom(wText, hText, 'height');
+          }}
           onKeyDown={(e) => {
             if (e.key === 'Enter') {
-              commitCustom(wText, hText);
               e.currentTarget.blur();
             } else if (e.key === 'Escape') {
+              skipBlur.current = true;
               setHText(artwork.height.toString());
               e.currentTarget.blur();
             }

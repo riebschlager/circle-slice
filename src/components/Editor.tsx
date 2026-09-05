@@ -1,4 +1,11 @@
-import { useCallback, useEffect, useReducer, useRef } from 'react';
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useReducer,
+  useRef,
+  useState,
+} from 'react';
 import { createPreview } from '../render/preview';
 import { DEFAULT_SETTINGS, normalizeSettings } from '../state/settings';
 import {
@@ -23,6 +30,7 @@ import { ExportControls } from './ExportControls';
 import { renderExport } from '../export/render';
 import { makeFilename } from '../export/filename';
 import { downloadBlob } from '../export/download';
+import { decodeImageFile, type DecodedImage } from '../images/decode';
 
 const INITIAL_STATE: EditorState = {
   image: null,
@@ -40,6 +48,39 @@ export function Editor() {
   const fileInput = useRef<HTMLInputElement>(null);
   const [state, dispatch] = useReducer(editorReducer, INITIAL_STATE);
   const latestId = useRef(0);
+  const ownedBitmaps = useRef(new Set<DecodedImage>());
+  const mounted = useRef(false);
+  const exportBusy = useRef(false);
+  const pendingExport = useRef<{
+    frame: number;
+    source: Promise<{ bitmap: DecodedImage | null }>;
+  } | null>(null);
+  const [download, setDownload] = useState<{
+    url: string;
+    filename: string;
+  } | null>(null);
+  useEffect(
+    () => () => {
+      if (download) URL.revokeObjectURL(download.url);
+    },
+    [download],
+  );
+  useEffect(() => {
+    mounted.current = true;
+    const owned = ownedBitmaps.current;
+    return () => {
+      mounted.current = false;
+      latestId.current = allocateRequestId();
+      for (const bitmap of owned) bitmap.close();
+      owned.clear();
+      const pending = pendingExport.current;
+      if (pending) {
+        cancelAnimationFrame(pending.frame);
+        void pending.source.then(({ bitmap }) => bitmap?.close());
+        pendingExport.current = null;
+      }
+    };
+  }, []);
 
   // ─── Preview controller ──────────────────────────────────────────────────
   const previewRef = useRef<ReturnType<typeof createPreview> | null>(null);
@@ -54,7 +95,7 @@ export function Editor() {
   }, []);
 
   // Update the preview whenever the image, settings, viewMode, or artwork changes.
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (!state.image || !previewRef.current) return;
     const { bitmap, sourceSize, artwork } = state.image;
 
@@ -74,8 +115,18 @@ export function Editor() {
         settings: state.settings,
       });
     }
+    for (const owned of ownedBitmaps.current) {
+      if (owned !== bitmap) {
+        owned.close();
+        ownedBitmaps.current.delete(owned);
+      }
+    }
     // Set aspect ratio on the container.
     if (container.current) {
+      container.current.style.setProperty(
+        '--artwork-ratio',
+        String(artwork.width / artwork.height),
+      );
       container.current.style.aspectRatio = `${artwork.width.toString()} / ${artwork.height.toString()}`;
     }
   }, [state.image, state.settings, state.viewMode]);
@@ -90,13 +141,16 @@ export function Editor() {
     void importExample(url, id, isLatest).then((outcome) => {
       if (!outcome) return;
       if (outcome.ok) {
-        const { bitmap, sourceSize, artwork, file, requestId } = outcome;
+        ownedBitmaps.current.add(outcome.bitmap);
+        const { bitmap, sourceSize, artwork, file, sourceBlob, requestId } =
+          outcome;
         dispatch({
           type: 'IMPORT_SUCCESS',
           bitmap,
           sourceSize,
           artwork,
           file,
+          sourceBlob,
           requestId,
         });
       } else {
@@ -118,6 +172,7 @@ export function Editor() {
     void importFile(file, id, isLatest).then((outcome) => {
       if (!outcome) return;
       if (outcome.ok) {
+        ownedBitmaps.current.add(outcome.bitmap);
         const {
           bitmap,
           sourceSize,
@@ -228,11 +283,24 @@ export function Editor() {
   // ─── Download ────────────────────────────────────────────────────────────
   const handleDownload = useCallback(() => {
     const { image, settings, exportSettings, exportStatus } = state;
-    if (!image || exportStatus.kind === 'exporting') return;
+    if (!image || exportStatus.kind === 'exporting' || exportBusy.current)
+      return;
+    exportBusy.current = true;
 
     // Snapshot the source and settings at the moment of click.
     // Subsequent edits/imports must not alter the in-flight result.
-    const snapshotSource = image.bitmap;
+    // Start acquiring an independent source before replacement can dispose the preview.
+    const sourceFile =
+      image.file ??
+      new File([image.sourceBlob!], 'example.png', { type: 'image/png' });
+    const sourcePromise = decodeImageFile(sourceFile).then(
+      ({ bitmap }) => bitmap,
+    );
+    // Attach rejection handling immediately, even if the tab delays animation frames.
+    const sourceResult = sourcePromise.then(
+      (bitmap) => ({ bitmap, error: null }),
+      (error: unknown) => ({ bitmap: null, error }),
+    );
     const snapshotSourceSize = { ...image.sourceSize };
     const snapshotArtwork = { ...image.artwork };
     const snapshotSettings = { ...settings };
@@ -242,12 +310,16 @@ export function Editor() {
     dispatch({ type: 'EXPORT_START' });
 
     // Yield a frame so the "Preparing download…" busy state can paint.
-    requestAnimationFrame(() => {
+    const frame = requestAnimationFrame(() => {
+      pendingExport.current = null;
       void (async () => {
+        const source = await sourceResult;
         try {
+          if (!source.bitmap) throw source.error;
+          if (!mounted.current) return;
           const result = await renderExport({
             input: {
-              source: snapshotSource,
+              source: source.bitmap,
               sourceSize: snapshotSourceSize,
               artwork: snapshotArtwork,
               settings: snapshotSettings,
@@ -262,6 +334,8 @@ export function Editor() {
             snapshotExportSettings.format,
           );
 
+          if (!mounted.current) return;
+          setDownload({ url: URL.createObjectURL(result.blob), filename });
           downloadBlob(result.blob, filename);
           dispatch({ type: 'EXPORT_SUCCESS' });
         } catch (err) {
@@ -269,10 +343,14 @@ export function Editor() {
             err instanceof Error
               ? err.message
               : 'Export failed. Try a different format or smaller dimensions.';
-          dispatch({ type: 'EXPORT_FAILURE', message });
+          if (mounted.current) dispatch({ type: 'EXPORT_FAILURE', message });
+        } finally {
+          source.bitmap?.close();
+          exportBusy.current = false;
         }
       })();
     });
+    pendingExport.current = { frame, source: sourceResult };
   }, [state]);
 
   const handleExportReset = useCallback(() => {
@@ -317,7 +395,6 @@ export function Editor() {
         <button
           type="button"
           onClick={openPicker}
-          disabled={isLoading}
           className="btn-primary"
           aria-busy={isLoading ? 'true' : undefined}
         >
@@ -388,7 +465,7 @@ export function Editor() {
           </span>
           <span
             role="status"
-            aria-live="polite"
+            aria-live="off"
             className={hasError ? 'status-error' : undefined}
           >
             {statusText}
@@ -420,6 +497,12 @@ export function Editor() {
           onChange={handleExportSettingsChange}
         />
 
+        {download && (
+          <a href={download.url} download={download.filename}>
+            Download again
+          </a>
+        )}
+
         {/* Export status */}
         {(isExporting || hasExportError) && (
           <div
@@ -444,6 +527,19 @@ export function Editor() {
             )}
           </div>
         )}
+
+        <span className="sr-only" aria-live="polite">
+          {importStatus.kind === 'ready'
+            ? `Loaded ${image?.file?.name ?? 'bundled example'}.`
+            : importStatus.kind === 'loading' || importStatus.kind === 'error'
+              ? statusText
+              : ''}
+        </span>
+        <span className="sr-only" aria-live="polite">
+          {download && exportStatus.kind === 'idle'
+            ? 'Download ready. Use Download again if it did not start.'
+            : ''}
+        </span>
 
         <p className="privacy-note">
           Your images stay on your device. Processing happens in this browser.
