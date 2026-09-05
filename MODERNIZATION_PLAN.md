@@ -1,6 +1,6 @@
 # Circle Slice modernization plan
 
-Status: M0–M2 complete (September 5, 2026); M3 is next. Reference capture, build validation, and decisions are recorded in `docs/validation.md` and `docs/architecture.md`. The Vite entry renders the bundled example with the Classic effect; production deployment remains M7.
+Status: M0–M3 complete (September 5, 2026); M4 is next. Reference capture, build validation, and decisions are recorded in `docs/validation.md` and `docs/architecture.md`. The Vite entry renders the bundled example with the Classic effect and supports local image import via file picker and drag and drop; production deployment remains M7.
 
 Prepared: September 5, 2026. Repository reviewed at `5162ee4` (`change og image`).
 
@@ -293,10 +293,10 @@ M2 evidence: all 108 M0 references match exactly in Chromium; bounded previews p
 
 Dependencies: M2.
 
-- [ ] Implement the shared picker/drop pipeline, format and resource validation, decode fallback, orientation handling, and explicit errors.
-- [ ] Implement source ownership, bounded preview decode, request IDs, stale-result disposal, and successful replacement semantics.
-- [ ] Handle bundled-example failure and user selection superseding example loading.
-- [ ] Add import/lifecycle browser tests and inspect repeated replacement resource behavior.
+- [x] Implement the shared picker/drop pipeline, format and resource validation, decode fallback, orientation handling, and explicit errors.
+- [x] Implement source ownership, bounded preview decode, request IDs, stale-result disposal, and successful replacement semantics.
+- [x] Handle bundled-example failure and user selection superseding example loading.
+- [x] Add import/lifecycle browser tests and inspect repeated replacement resource behavior.
 
 Acceptance: supported local files load through both entry points; A→B races end on B; invalid replacement preserves existing work; same-file retry works; no image data leaves the browser.
 

@@ -17,7 +17,7 @@ test('built shell and bundled example load directly and after refresh under the 
     await expect(page.getByRole('heading', { level: 1 })).toHaveText(
       'Circle Slice.',
     );
-    const example = page.getByRole('img', { name: /Geometric example/ });
+    const example = page.getByRole('img', { name: /Circle Slice effect/ });
     await expect(example).toBeVisible();
     await expect(page.getByRole('status')).toContainText('800 × 600');
     expect(

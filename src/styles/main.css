@@ -54,6 +54,7 @@ h1 span {
   min-width: 0;
 }
 .preview-surface {
+  position: relative;
   aspect-ratio: 4 / 3;
 }
 .example canvas {
@@ -62,6 +63,27 @@ h1 span {
   height: 100%;
   border: 1px solid #b7bcb2;
 }
+/* Overlay shown before an image is loaded */
+.canvas-prompt {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  background: #edecea;
+  border: 1px solid #b7bcb2;
+  pointer-events: none;
+}
+.canvas-prompt p {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #5a5e58;
+}
+.canvas-prompt .btn-open {
+  pointer-events: auto;
+}
 figcaption {
   display: flex;
   justify-content: space-between;
@@ -69,20 +91,77 @@ figcaption {
   gap: 8px;
   padding-top: 12px;
 }
-.note {
-  border-top: 3px solid #a94123;
-  padding-top: 18px;
+.status-error {
+  color: #a94123;
 }
-h2 {
-  font-weight: 400;
-  font-size: 1.8rem;
-  margin: 0 0 16px;
+
+/* Controls panel */
+.controls {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding-top: 4px;
 }
-.note p {
-  font-size: 1rem;
-  line-height: 1.65;
+.btn-primary {
+  font-family: inherit;
+  font-size: 0.875rem;
+  padding: 10px 20px;
+  background: #242c28;
+  color: #f2f0e8;
+  border: none;
+  cursor: pointer;
+  letter-spacing: 0.04em;
+  min-height: 44px;
+}
+.btn-primary:hover {
+  background: #3a453c;
+}
+.btn-primary:focus-visible {
+  outline: 2px solid #a94123;
+  outline-offset: 2px;
+}
+.btn-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.btn-open {
+  font-family: inherit;
+  font-size: 0.875rem;
+  padding: 10px 20px;
+  background: #242c28;
+  color: #f2f0e8;
+  border: none;
+  cursor: pointer;
+  letter-spacing: 0.04em;
+  min-height: 44px;
+}
+.btn-open:hover {
+  background: #3a453c;
+}
+.btn-open:focus-visible {
+  outline: 2px solid #a94123;
+  outline-offset: 2px;
+}
+.privacy-note {
+  font-size: 0.75rem;
+  color: #6a6e68;
   margin: 0;
+  line-height: 1.5;
 }
+
+/* Visually hidden (accessible) */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
 @media (max-width: 700px) {
   .workspace {
     grid-template-columns: minmax(0, 1fr);

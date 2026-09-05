@@ -1,4 +1,4 @@
-import { ExamplePreview } from './components/ExamplePreview';
+import { Editor } from './components/Editor';
 
 export default function App() {
   return (
@@ -10,16 +10,7 @@ export default function App() {
         </h1>
         <p className="tagline">Clip, rotate, repeat.</p>
       </header>
-      <figure className="example">
-        <ExamplePreview />
-      </figure>
-      <aside className="note" aria-labelledby="note-title">
-        <h2 id="note-title">A fresh start.</h2>
-        <p>
-          The editor is being rebuilt. For now, explore the example; image
-          editing and downloads are coming next.
-        </p>
-      </aside>
+      <Editor />
     </main>
   );
 }
