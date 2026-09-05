@@ -155,7 +155,7 @@ Testing conducted on macOS arm64, Node 24.20.0, Chromium 153.0.8010.12. Physical
 
 ## M7 — Configure and verify GitHub Pages delivery
 
-Reopened during the September 5, 2026 audit. The previous completion record was contradicted by live evidence.
+Reopened and completed during the September 5, 2026 audit. The previous completion record was contradicted by live evidence; the repaired delivery is now verified.
 
 **Findings:**
 
@@ -166,7 +166,7 @@ Reopened during the September 5, 2026 audit. The previous completion record was 
 
 **Changes:**
 
-- All 108 cases now compare Classic against the independent, hash-checked frozen legacy render harness in the same browser, requiring zero differing RGBA bytes. macOS arm64 additionally compares the untouched frozen PNGs exactly. No renderer, reference image, source hash, or pixel tolerance was changed. Linux still requires a successful Actions run to confirm this diagnosis.
+- All 108 cases now compare Classic against the independent, hash-checked frozen legacy render harness in the same browser, requiring zero differing RGBA bytes. macOS arm64 additionally compares the untouched frozen PNGs exactly. No renderer, reference image, source hash, or pixel tolerance was changed. The subsequent successful Linux run confirmed exact legacy parity in all 108 cases.
 - The keyboard test waits for image loading to finish before tabbing, then asserts that Open image itself receives focus. It previously raced disabled toolbar buttons.
 - Verification uploads the tested `dist/`; deployment consumes it without a second build. A check inside the deployment concurrency lock skips revisions no longer at the default-branch tip.
 - Updated Node-based helper actions to documented v7 releases and added a read-only post-deployment smoke job with failure artifacts.
@@ -180,4 +180,6 @@ Reopened during the September 5, 2026 audit. The previous completion record was 
 
 **Intentional differences:** Delivery and validation changes only; application output is unchanged.
 
-**Remaining:** Publish the repaired workflow, confirm Pages uses GitHub Actions, obtain successful Linux verification/deployment/live smoke results, and record the run URL. The signed-out browser cannot inspect or change Pages settings. Real Safari/iOS and physical mobile checks remain outstanding from M5/M6; Chromium does not substitute for them.
+**Production validation:** Repair commit `01623db925edf12f1cef4eabb80240e9695e2c24` was pushed to `master`. The user confirmed changing Pages source to GitHub Actions. [Run 33984076972](https://github.com/riebschlager/circle-slice/actions/runs/33984076972) completed successfully: Linux verification (40 unit tests, 47 browser tests), deployment of the verified artifact, and both live smoke tests. These exercise direct load/refresh, local assets and social card, 320 px layout, picker import, slice edits, comparison, and downloaded PNG/JPEG decoding at the displayed dimensions. The public editor was additionally visually inspected in the Codex browser: artwork and controls rendered correctly. The formerly blank site now works.
+
+**Remaining:** No M7 delivery tasks. Real Safari/iOS and physical mobile checks remain outstanding from M5/M6; Chromium does not substitute for them.

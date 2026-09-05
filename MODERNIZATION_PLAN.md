@@ -1,6 +1,6 @@
 # Circle Slice modernization plan
 
-Status: M0–M6 implemented, with real Safari/iOS validation still pending. M7 reopened September 5, 2026: the latest CI run failed and Pages served unbuilt HTML. Delivery repairs pass locally; production rollout remains pending. See `docs/validation.md` for evidence.
+Status: M7 delivery verified September 5, 2026 after repairing failed CI and a blank production site. M0–M6 are implemented, with real Safari/iOS and physical mobile validation still pending. Successful deployment and live workflow checks are recorded in `docs/validation.md`.
 
 Prepared: September 5, 2026. Repository reviewed at `5162ee4` (`change og image`).
 
@@ -346,18 +346,18 @@ M6 evidence: Added `tests/browser/perf.spec.ts` testing 12 MP (4000 × 3000) sli
 Dependencies: M6. CI checks may be introduced earlier; production cutover follows core validation.
 
 - [x] Add PR CI running locked install, formatting check, lint, typecheck, unit tests, production build, and browser tests against the built app. Upload failure traces/diffs as artifacts.
-- [ ] Inspect the repository's actual default branch and existing Pages source/settings. Configure Pages to use GitHub Actions when publishing the modernization; do not assume the current branch name or hosting mode.
+- [x] Inspect the repository's actual default branch and existing Pages source/settings. Configure Pages to use GitHub Actions when publishing the modernization; do not assume the current branch name or hosting mode.
 - [x] Add default-branch/manual deployment with successful verification as a dependency, the `github-pages` environment, and concurrency protection against obsolete deployments.
 - [x] Use the official configure/upload/deploy Pages actions with currently supported releases. Keep normal CI at read-only contents permissions; scope `pages: write` and `id-token: write` to deployment. PRs must not deploy.
 - [x] Publish `dist/` only. Keep historical sketches, test fixtures/harnesses, and development files out of the site artifact.
-- [ ] Confirm the deployed `/circle-slice/` URL loads directly and on refresh; verify asset paths, local import, controls, and download on the real site.
+- [x] Confirm the deployed `/circle-slice/` URL loads directly and on refresh; verify asset paths, local import, controls, and download on the real site.
 - [x] Document rollback: revert to a known-good source revision and redeploy through its working workflow; preserve the former Pages configuration details for rollback from the first cutover.
 
 Vite requires the project subpath in `base` for this URL. GitHub documents the Pages artifact workflow and deployment permissions. Follow those guides at implementation time rather than copying stale action versions. [Vite Pages deployment](https://vite.dev/guide/static-deploy#github-pages), [GitHub custom Pages workflows](https://docs.github.com/en/pages/getting-started-with-github-pages/using-custom-workflows-with-github-pages).
 
 Acceptance: only verified default-branch/manual builds publish; the public site performs the complete local-image workflow; setup and rollback are documented. If repository settings/permissions are unavailable, deliver the finished workflow and exact remaining setup step, and mark live deployment verification pending rather than claiming completion.
 
-M7 audit: The prior completion claims were incorrect. Run `33983535288` failed Linux parity checks and skipped deployment; the live page loaded `/src/main.tsx` with HTTP 404. Repaired parity validation keeps exact same-browser comparisons against hash-checked legacy code and exact frozen PNG comparisons on macOS arm64. CI now uploads the tested artifact, deployment skips superseded revisions, and a read-only live smoke job checks import/controls/refresh/downloads. Local validation passes 40 unit and 47 browser tests. Rollback instructions now accurately require restoring source on `master`. Pages configuration and successful production rollout still require verification; see [validation](docs/validation.md).
+M7 audit: The prior completion claims were incorrect. Run `33983535288` failed Linux parity checks and skipped deployment; the live page loaded `/src/main.tsx` with HTTP 404. Repaired parity validation keeps exact same-browser comparisons against hash-checked legacy code and exact frozen PNG comparisons on macOS arm64. CI now uploads the tested artifact, deployment skips superseded revisions, and a read-only live smoke job checks import/controls/refresh/downloads. Local validation passes 40 unit and 47 browser tests. Rollback instructions now accurately require restoring source on `master`. The user confirmed the Pages source change to GitHub Actions; run [33984076972](https://github.com/riebschlager/circle-slice/actions/runs/33984076972) successfully verified all 47 tests on Linux, deployed the tested artifact, and passed both public-site smoke tests. The deployed editor was also visually inspected. M7 delivery is complete; see [validation](docs/validation.md).
 
 ## 9. Agent handoff and completion rules
 

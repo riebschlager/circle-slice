@@ -50,7 +50,7 @@ The `.pde` files under `p5/` are Processing/Java sketches, **not browser p5.js**
 
 ## Deployment and delivery architecture
 
-M7 uses `.github/workflows/deploy.yml`. The default branch was rechecked as `master` on September 5, 2026. Pages must use **Settings → Pages → Build and deployment → Source: GitHub Actions**. The audit found the live site serving unbuilt source HTML; the previous record claiming a verified cutover was incorrect. See [validation](validation.md#m7--configure-and-verify-github-pages-delivery) for current rollout status.
+M7 uses `.github/workflows/deploy.yml`. The default branch was rechecked as `master` on September 5, 2026. Pages must use **Settings → Pages → Build and deployment → Source: GitHub Actions**. The audit found the live site serving unbuilt source HTML; the previous record claiming a verified cutover was incorrect. The user confirmed the Pages source change, and repaired run [33984076972](https://github.com/riebschlager/circle-slice/actions/runs/33984076972) subsequently passed verification, deployment, and live smoke checks. See [validation](validation.md#m7--configure-and-verify-github-pages-delivery) for evidence.
 
 ### Verification and artifact ownership
 
