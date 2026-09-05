@@ -78,3 +78,77 @@ Completed September 5, 2026. Environment matches M2: macOS arm64, Node 24.20.0, 
 **Intentional differences:** The canvas `aria-label` now reflects the actual effect parameters rather than a hardcoded "Geometric example" string; the smoke test was updated accordingly. The `ExamplePreview` component is superseded by `Editor`, which loads the same bundled example on mount. No M0 baselines were regenerated; M2 parity was not re-checked (the renderer is unchanged).
 
 **Scope/limits:** Format detection relies on magic bytes for JPEG/PNG/WebP and falls back to `file.type` for ambiguous or missing signatures; actual decode validity is verified by `createImageBitmap`/`HTMLImageElement.decode`. EXIF orientation is handled by the `imageOrientation: 'from-image'` option where `createImageBitmap` supports it; the fallback path does not apply EXIF rotation correction explicitly (browser `decode()` may or may not apply it). Input limit checks occur after decode when dimensions are first known; peak memory during decode of an oversized file is not bounded before rejection. Real-device, Safari/iOS, HEIC, RAW, multi-device performance, and deployment checks remain M4–M7.
+
+## M4 — Build the responsive editor interface
+
+Completed September 5, 2026. Environment matches M3: macOS arm64, Node 24.20.0, Playwright 1.63.0, Chromium 153.0.8010.12 (revision 1243).
+
+**Change:** Replaced dat.GUI and transient introductory overlay with the accessible, responsive React editor interface described in Section 6. Added:
+
+- `src/components/EffectControls.tsx`: paired native range and number inputs for Slices (1–50) and Rotation per slice (−50° to 50° with 0.1° steps). Draft numeric text during typing; validation and normalization on Enter/blur/Escape; inline validation messages.
+- `src/components/ArtworkControls.tsx`: preset selectors (Source, 1:1, 4:3, 3:4, Custom), custom W × H pixel inputs, live pixel count, and visible limit messaging (16 MP, 8,192 px/axis).
+- `src/components/Toolbar.tsx`: persistent actions for "Open image", "Reset effect", and "Download".
+- `src/components/CompareToggle.tsx`: Original/Result comparison toggle; draws uncovered source without effect while preserving settings and export readiness.
+- `src/styles/main.css`: CSS custom properties, responsive CSS grid (`masthead`, `toolbar`, `example`, `controls`), `@media (max-width: 700px)` single-column stacking, `@media (max-width: 400px)` compact spacing, `@media (prefers-reduced-motion)` support, visible focus rings, and high contrast.
+
+**Validation:** 13 new browser tests in `tests/browser/editor.spec.ts` covering: controls rendering, slider and number input synchronization, Reset effect restores defaults, toolbar buttons and states, comparison mode toggle and status text, artwork presets (source, square, etc.), keyboard reachability, and 0 horizontal overflow at 320 px viewport width. All 31 browser tests passed.
+
+## M5 — Deliver independent full-resolution export
+
+Completed September 5, 2026. Environment matches M4: macOS arm64, Node 24.20.0, Playwright 1.63.0, Chromium 153.0.8010.12 (revision 1243).
+
+**Change:** Added independent full-resolution export pipeline:
+
+- `src/export/render.ts`: separate export canvas rendered at requested artwork pixel dimensions directly from original source; explicit white matte for JPEG; `toBlob` handling with null/exception guards.
+- `src/export/filename.ts`: sanitized basename, `-circle-slice-WxH` suffix, correct extension (`.png` or `.jpg`).
+- `src/export/download.ts`: object URL trigger via hidden anchor, deferred URL revocation.
+- `src/components/ExportControls.tsx`: PNG and JPEG radio controls; JPEG quality slider with datalist snap points (0.75, 0.85, 0.92, 1.0).
+- `src/state/editor.ts`: export state management (`idle`, `exporting`, `error`), duplicate submission guards, yielding one animation frame so busy state can paint before synchronous rendering.
+
+**Validation:** 9 unit tests in `tests/unit/export.test.ts` (filename sanitization, dimensions, extension agreement, unsafe char stripping, basename length cap). 13 new browser tests in `tests/browser/export.spec.ts` (button states, PNG/JPEG selection, quality slider visibility, download trigger, PNG header byte dimensions verification matching artwork dimensions, JPEG extension, comparison-mode exports effect, duplicate-submission lock, error dismissal). All 44 browser tests and 40 unit tests passed.
+
+## M6 — Harden, document, and remove obsolete code
+
+Completed September 5, 2026. Environment matches M5: macOS arm64, Node 24.20.0, Playwright 1.63.0, Chromium 153.0.8010.12 (revision 1243).
+
+**Change:**
+
+1. Hardened performance and resource lifecycle: added `tests/browser/perf.spec.ts` to validate the Section 7 acceptance criteria:
+   - Evaluated 12 MP (4000 × 3000) interactive slider sweep over 50 consecutive steps.
+   - Measured input-to-`requestAnimationFrame` completion latency:
+     - Samples: 50
+     - Minimum: 14.9 ms
+     - Median (p50): 29.8 ms
+     - p95: 53.0 ms (well below the 100 ms target budget)
+     - p99: 58.9 ms
+     - Maximum: 58.9 ms
+   - Full 12 MP canvas export timings:
+     - 12 MP Classic render (50 slices): 663.1 ms
+     - PNG blob encoding: 34.4 ms (864 KB)
+     - JPEG blob encoding: 38.2 ms (505 KB, quality 0.92)
+   - Zero idle rendering: confirmed 0 continuing animation frames during settled idle periods.
+   - Resource cleanup: 10 repeated full create/render/export/dispose lifecycles confirmed 0 leaked canvases, revoked object URLs, and zero lingering background jobs.
+2. Removed legacy 2018 code:
+   - Deleted root `js/` directory (`main.js`, `fit.min.js`, `canvas-to-image.min.js`, and `js/gui/` dat.GUI files).
+   - Deleted root `css/` directory (`main.css`, `reset.css`).
+   - Retained test-only frozen legacy copies in `tests/reference/legacy/` and `tests/reference/render.js` with the Justin Windle copyright notice preserved.
+   - Updated `eslint.config.js` and `.prettierignore` to remove references to deleted paths.
+3. Refreshed metadata and assets:
+   - Generated local high-resolution Open Graph card `public/social/og-image.png` (1200 × 630 PNG) rendered via `renderClassic` from the permitted geometric fixture, removing external Imgur dependencies.
+   - Updated `index.html`: Open Graph tags with `property="og:..."`, canonical link `https://riebschlager.github.io/circle-slice/`, `twitter:card` `summary_large_image`, local social image, and preserved authorship (`Chris Riebschlager` / `@riebschlager`).
+   - Added modern baseline resets in `src/styles/main.css` for images, canvases, and form control font inheritance.
+4. Rewrote `README.md` to provide comprehensive user and contributor documentation.
+
+**Section 7 Validation Matrix Coverage:**
+
+- Pure logic: Cover geometry for square/landscape/portrait inputs, ring radii and angle order, parameter normalization, dimensions/limits, safe filenames, state transitions, and stale-import handling (`tests/unit/geometry.test.ts`, `tests/unit/rendering.test.ts`, `tests/unit/import.test.ts`, `tests/unit/export.test.ts`).
+- Rendering: 108 real-browser comparisons against legacy baselines across all sources (sea, quadrants, portrait, transparent), slice counts (1, 10, 50), and angles (0°, −35°, +10°); portrait clipping, rotated corners, transparent overlap all verified with 0 differing RGBA bytes (`tests/browser/rendering.spec.ts`).
+- Import: File picker and drop, fallback file list, same-file retry, multiple-file rejection, corrupt/unsupported input, oversized inputs, EXIF orientation, failed replacement preserves current work, rapid A→B import (`tests/browser/import.spec.ts`).
+- Preview: Resize and DPR changes preserve composition, no frames after settling, repeated imports/remounts do not increase scheduled work, Original comparison preserves effect settings (`tests/browser/rendering.spec.ts`, `tests/browser/editor.spec.ts`).
+- Export: Downloaded PNG/JPEG decoding and header byte dimension verification, JPEG white matte, full source detail vs preview, pending export across edits/imports, error recovery (`tests/browser/export.spec.ts`).
+- Interface: Keyboard-only import/edit/download, labels and focus, touch layouts, 0 horizontal overflow at 320 px, visible errors and busy states (`tests/browser/editor.spec.ts`, `tests/browser/smoke.spec.ts`).
+- Delivery/privacy: Production build loads under `/circle-slice/`, all assets resolve locally, reload works, zero network traffic during import/edit/export (`tests/browser/smoke.spec.ts`, `tests/browser/import.spec.ts`).
+- Performance: Zero continuing idle frames, bounded 2 MP preview backing canvas, p95 slider sweep latency 53.0 ms (< 100 ms target), resource cleanup verified across repeated cycles (`tests/browser/perf.spec.ts`).
+
+**Scope/limits:**
+Testing conducted on macOS arm64, Node 24.20.0, Chromium 153.0.8010.12. Physical mobile devices and real Safari/iOS remain to be tested on staging/production deployment in M7. Production bundle contains only modern assets.

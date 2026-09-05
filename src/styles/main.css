@@ -30,6 +30,22 @@ body {
   min-width: 320px;
 }
 
+img,
+picture,
+video,
+canvas,
+svg {
+  display: block;
+  max-width: 100%;
+}
+
+input,
+button,
+textarea,
+select {
+  font: inherit;
+}
+
 /* ── Workspace grid ─────────────────────────────────────────────────────── */
 /*
   Grid areas:

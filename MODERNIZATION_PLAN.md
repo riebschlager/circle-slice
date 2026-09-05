@@ -1,6 +1,6 @@
 # Circle Slice modernization plan
 
-Status: M0–M3 complete (September 5, 2026); M4 is next. Reference capture, build validation, and decisions are recorded in `docs/validation.md` and `docs/architecture.md`. The Vite entry renders the bundled example with the Classic effect and supports local image import via file picker and drag and drop; production deployment remains M7.
+Status: M0–M6 complete (September 5, 2026); M7 is next. Reference capture, build validation, performance benchmarks, and decisions are recorded in `docs/validation.md` and `docs/architecture.md`. Production deployment remains M7.
 
 Prepared: September 5, 2026. Repository reviewed at `5162ee4` (`change og image`).
 
@@ -331,13 +331,15 @@ M5 evidence: `src/export/` module added with three units: `render.ts` (separate 
 
 Dependencies: M5.
 
-- [ ] Complete section 7 validation and record results, commands, browser/device versions, visual differences, and known limits in `docs/validation.md`.
-- [ ] Measure interaction latency and resource cleanup; optimize only demonstrated bottlenecks.
-- [ ] Remove production references to legacy globals, inline handlers, fit/export helpers, and every dat.GUI artifact, then remove those unused files. Preserve any attribution needed by retained reference material.
-- [ ] Replace reset/styles and refresh metadata: use `property` for Open Graph, correct canonical/asset URLs, and a locally hosted social image. Do not change authorship without evidence.
-- [ ] Rewrite README with use, privacy, supported formats/limits, setup, scripts, effect explanation, screenshot, historical sketch note, and deployment instructions. Keep the existing demo URL.
+- [x] Complete section 7 validation and record results, commands, browser/device versions, visual differences, and known limits in `docs/validation.md`.
+- [x] Measure interaction latency and resource cleanup; optimize only demonstrated bottlenecks.
+- [x] Remove production references to legacy globals, inline handlers, fit/export helpers, and every dat.GUI artifact, then remove those unused files. Preserve any attribution needed by retained reference material.
+- [x] Replace reset/styles and refresh metadata: use `property` for Open Graph, correct canonical/asset URLs, and a locally hosted social image. Do not change authorship without evidence.
+- [x] Rewrite README with use, privacy, supported formats/limits, setup, scripts, effect explanation, screenshot, historical sketch note, and deployment instructions. Keep the existing demo URL.
 
 Acceptance: complete core workflow passes across the documented support matrix, production output contains only needed assets, and a new contributor can build/test without undocumented steps. No optional feature is required to pass this task.
+
+M6 evidence: Added `tests/browser/perf.spec.ts` testing 12 MP (4000 × 3000) slider sweep across 50 steps: p95 latency 53.0 ms (budget < 100 ms), min 14.9 ms, median 29.8 ms, max 58.9 ms; 12 MP export render 663.1 ms; PNG encoding 34.4 ms; JPEG encoding 38.2 ms; 0 continuing idle frames; 10 repeated create/render/export/dispose lifecycles with 0 active canvases remaining and URLs revoked. Deleted legacy `js/` (containing `main.js`, `fit.min.js`, `canvas-to-image.min.js`, and `js/gui/` with dat.GUI) and `css/` (`main.css`, `reset.css`). Retained test-only references in `tests/reference/legacy/` preserving Justin Windle copyright. Generated local Open Graph image `public/social/og-image.png` (1200 × 630 PNG) from geometric fixture using `renderClassic`. Updated `index.html` with canonical link, `property="og:..."`, `summary_large_image`, local social asset, and preserved authorship. Updated `main.css` modern reset baselines. Rewrote `README.md` with complete usage, privacy, limits, effect math, scripts, and deployment guide. Recorded M4, M5, and M6 validation in `docs/validation.md`.
 
 ### M7 — Configure and verify GitHub Pages delivery
 

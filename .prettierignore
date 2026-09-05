@@ -6,6 +6,4 @@ test-results/
 package-lock.json
 # Frozen references and historical sources must remain byte-for-byte intact.
 tests/reference/
-js/
-css/
 p5/

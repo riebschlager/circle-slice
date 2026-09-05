@@ -10,8 +10,6 @@ export default defineConfig([
     'playwright-report/**',
     'test-results/**',
     'tests/reference/**',
-    'js/**',
-    'css/**',
     'p5/**',
   ]),
   js.configs.recommended,
