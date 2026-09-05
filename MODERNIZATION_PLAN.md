@@ -1,6 +1,6 @@
 # Circle Slice modernization plan
 
-Status: M0 complete (September 5, 2026); M1 is next. Reference capture and decisions are recorded in `docs/validation.md` and `docs/architecture.md`. Production application code remains unchanged.
+Status: M0–M2 complete (September 5, 2026); M3 is next. Reference capture, build validation, and decisions are recorded in `docs/validation.md` and `docs/architecture.md`. The Vite entry renders the bundled example with the Classic effect; production deployment remains M7.
 
 Prepared: September 5, 2026. Repository reviewed at `5162ee4` (`change og image`).
 
@@ -30,23 +30,23 @@ No server, accounts, image uploads, analytics, external font service, remote ima
 
 All 18 tracked project files were inventoried. Application source and Processing sketches were read; the bundled image was visually inspected. Vendored library code and generated variants were inspected, including module differences and source-map contents/structure. Generated bundles/maps are dependency artifacts, not additional application features. This is a source-based review; live-browser behavior, current Pages configuration, and performance measurements remain to be verified during implementation.
 
-| Files | Current purpose | Planned treatment |
-| --- | --- | --- |
-| `index.html` | Static entry point, three global scripts, full-window canvas, transient drop instruction, social metadata | Replace with Vite entry point and semantic application shell; retain useful metadata, correct Open Graph attributes, use local social assets |
-| `js/main.js` | Image loading, effect, dat.GUI setup, export, resize and drop handling in one file | Extract typed rendering, image lifecycle, state, and UI modules |
-| `css/main.css` | Fading introduction overlay | Replace with responsive application styles and persistent import guidance |
-| `css/reset.css` | Broad element reset | Replace with a short modern baseline that preserves useful native control behavior |
-| `js/fit.min.js` | Generic rectangle/DOM fitting helper; app uses centered cover fitting | Replace with a small pure rectangle-fit function |
-| `js/canvas-to-image.min.js` | Canvas data URL → decoded bytes → Blob → legacy save fallbacks | Replace with native Blob export and download handling |
-| `js/gui/dat.gui.min.js` | Loaded UI library, with injected styles | Replace with labeled native controls composed in React |
-| `js/gui/dat.gui.js`, `js/gui/dat.gui.module.js` | Readable UMD and ES module versions; implementation matches apart from wrappers/exports | Remove after replacement and baseline verification |
-| `js/gui/dat.gui.css` | Standalone vendor styles; not linked by current HTML | Remove with dat.GUI |
-| `js/gui/dat.gui.js.map`, `js/gui/dat.gui.module.js.map` | Maps containing the same 22 upstream source entries | Remove with dat.GUI |
-| `img/sea.jpg` | Bundled ocean example, 1920 × 1439 JPEG | Retain as a regression input; verify provenance before redistributing it in the new release, or substitute a documented permitted asset |
-| `p5/CircleSlice/CircleSlice.pde` | Processing/Java prototype: six shrinking masked circles, square output, different rotation formula | Keep as historical reference; document that this is Processing, not browser p5.js |
-| `p5/CircleSliceMix/CircleSliceMix.pde`, `p5/CircleSliceFullWidth/CircleSliceFullWidth.pde` | Alternating two-image prototype; files are byte-identical despite their names | Retain and document duplication; potential inspiration for later mixing mode |
-| `README.md` | Demo link and five externally hosted example images | Add usage, development, architecture, deployment, limitations, and local examples |
-| `.gitignore` | macOS file plus two sketch paths | Add build, dependency, test-output and correct nested Processing data/output exclusions |
+| Files                                                                                      | Current purpose                                                                                           | Planned treatment                                                                                                                            |
+| ------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| `index.html`                                                                               | Static entry point, three global scripts, full-window canvas, transient drop instruction, social metadata | Replace with Vite entry point and semantic application shell; retain useful metadata, correct Open Graph attributes, use local social assets |
+| `js/main.js`                                                                               | Image loading, effect, dat.GUI setup, export, resize and drop handling in one file                        | Extract typed rendering, image lifecycle, state, and UI modules                                                                              |
+| `css/main.css`                                                                             | Fading introduction overlay                                                                               | Replace with responsive application styles and persistent import guidance                                                                    |
+| `css/reset.css`                                                                            | Broad element reset                                                                                       | Replace with a short modern baseline that preserves useful native control behavior                                                           |
+| `js/fit.min.js`                                                                            | Generic rectangle/DOM fitting helper; app uses centered cover fitting                                     | Replace with a small pure rectangle-fit function                                                                                             |
+| `js/canvas-to-image.min.js`                                                                | Canvas data URL → decoded bytes → Blob → legacy save fallbacks                                            | Replace with native Blob export and download handling                                                                                        |
+| `js/gui/dat.gui.min.js`                                                                    | Loaded UI library, with injected styles                                                                   | Replace with labeled native controls composed in React                                                                                       |
+| `js/gui/dat.gui.js`, `js/gui/dat.gui.module.js`                                            | Readable UMD and ES module versions; implementation matches apart from wrappers/exports                   | Remove after replacement and baseline verification                                                                                           |
+| `js/gui/dat.gui.css`                                                                       | Standalone vendor styles; not linked by current HTML                                                      | Remove with dat.GUI                                                                                                                          |
+| `js/gui/dat.gui.js.map`, `js/gui/dat.gui.module.js.map`                                    | Maps containing the same 22 upstream source entries                                                       | Remove with dat.GUI                                                                                                                          |
+| `img/sea.jpg`                                                                              | Bundled ocean example, 1920 × 1439 JPEG                                                                   | Retain as a regression input; verify provenance before redistributing it in the new release, or substitute a documented permitted asset      |
+| `p5/CircleSlice/CircleSlice.pde`                                                           | Processing/Java prototype: six shrinking masked circles, square output, different rotation formula        | Keep as historical reference; document that this is Processing, not browser p5.js                                                            |
+| `p5/CircleSliceMix/CircleSliceMix.pde`, `p5/CircleSliceFullWidth/CircleSliceFullWidth.pde` | Alternating two-image prototype; files are byte-identical despite their names                             | Retain and document duplication; potential inspiration for later mixing mode                                                                 |
+| `README.md`                                                                                | Demo link and five externally hosted example images                                                       | Add usage, development, architecture, deployment, limitations, and local examples                                                            |
+| `.gitignore`                                                                               | macOS file plus two sketch paths                                                                          | Add build, dependency, test-output and correct nested Processing data/output exclusions                                                      |
 
 There is no package manifest, lockfile, test suite, CI workflow, project license file, or project-specific agent instruction file in this checkout. Referenced Processing input images are absent. The sketches are historical references, not runnable release dependencies.
 
@@ -65,17 +65,17 @@ Do not interpret existing artistic choices as defects: the background wash, heig
 
 ## 3. Technical direction
 
-| Area | Recommendation | Reason |
-| --- | --- | --- |
-| Build | Vite, npm, a committed lockfile | Small static build and straightforward Pages support |
-| Language | TypeScript with strict checking | Explicit image ownership, valid settings, and asynchronous state transitions |
-| UI | React with local state/reducer and small components | Practical composition of editor, import, history-ready settings, and export states |
-| Graphics | Native Canvas 2D, isolated from React | Existing effect fits this API; preserve a small, independently testable renderer |
-| Styling | Plain CSS/CSS Modules, custom properties, Grid/Flexbox | Sufficient for one workspace without a CSS framework or component-library migration |
-| Validation | Small typed validation functions | Few fields; runtime checks still apply to files, numbers, and any future imported recipes |
-| Tests | Vitest for pure logic; Playwright for real-browser canvas and workflows | Canvas behavior needs browser validation, not only mocked drawing calls |
-| Quality | ESLint, formatter, TypeScript check | Consistent conventions and repeatable checks |
-| Deployment | GitHub Actions builds and publishes `dist/` to Pages | Deploy only tested static output |
+| Area       | Recommendation                                                          | Reason                                                                                    |
+| ---------- | ----------------------------------------------------------------------- | ----------------------------------------------------------------------------------------- |
+| Build      | Vite, npm, a committed lockfile                                         | Small static build and straightforward Pages support                                      |
+| Language   | TypeScript with strict checking                                         | Explicit image ownership, valid settings, and asynchronous state transitions              |
+| UI         | React with local state/reducer and small components                     | Practical composition of editor, import, history-ready settings, and export states        |
+| Graphics   | Native Canvas 2D, isolated from React                                   | Existing effect fits this API; preserve a small, independently testable renderer          |
+| Styling    | Plain CSS/CSS Modules, custom properties, Grid/Flexbox                  | Sufficient for one workspace without a CSS framework or component-library migration       |
+| Validation | Small typed validation functions                                        | Few fields; runtime checks still apply to files, numbers, and any future imported recipes |
+| Tests      | Vitest for pure logic; Playwright for real-browser canvas and workflows | Canvas behavior needs browser validation, not only mocked drawing calls                   |
+| Quality    | ESLint, formatter, TypeScript check                                     | Consistent conventions and repeatable checks                                              |
+| Deployment | GitHub Actions builds and publishes `dist/` to Pages                    | Deploy only tested static output                                                          |
 
 React is a project tradeoff, not a prerequisite for modern code. Vite with vanilla TypeScript would also suit the current two-control demo; React is recommended for the richer editor states in this plan. Keep that choice at the UI boundary. React's documentation describes Vite as an option for a client-only application built from scratch; the routing/server-data concerns that motivate larger frameworks do not apply to this scope. [React guidance](https://react.dev/learn/build-a-react-app-from-scratch).
 
@@ -148,14 +148,14 @@ In portrait artworks the Classic outer circle extends beyond the left/right artw
 
 Core defaults and validation:
 
-| Setting | Default | Contract |
-| --- | --- | --- |
-| Slice count | 10 | Integer 1–50, explicit step 1; clamp/round finite committed values |
-| Rotation per slice | 10° | −50° to 50°, UI step 0.1°; positive follows Canvas rotation direction |
-| Background wash | 25% | Fixed Classic value for the first release; adjustable version is optional |
-| Center and radius | Artwork center, height/2 | Fixed Classic geometry for the first release |
-| Artwork size | Oriented source dimensions, proportionally reduced if over export limits | Chosen once on successful image import; never follows a later window resize |
-| Export | PNG | JPEG selectable, default quality 0.92, white matte for remaining transparency |
+| Setting            | Default                                                                  | Contract                                                                      |
+| ------------------ | ------------------------------------------------------------------------ | ----------------------------------------------------------------------------- |
+| Slice count        | 10                                                                       | Integer 1–50, explicit step 1; clamp/round finite committed values            |
+| Rotation per slice | 10°                                                                      | −50° to 50°, UI step 0.1°; positive follows Canvas rotation direction         |
+| Background wash    | 25%                                                                      | Fixed Classic value for the first release; adjustable version is optional     |
+| Center and radius  | Artwork center, height/2                                                 | Fixed Classic geometry for the first release                                  |
+| Artwork size       | Oriented source dimensions, proportionally reduced if over export limits | Chosen once on successful image import; never follows a later window resize   |
+| Export             | PNG                                                                      | JPEG selectable, default quality 0.92, white matte for remaining transparency |
 
 Allow incomplete numeric text while editing, without sending `NaN` to the renderer. On commit, normalize finite values and restore the last valid value with an inline message for invalid text. Apply the same validation to every state entry point. Reset restores effect defaults and leaves the image and artwork size in place.
 
@@ -226,15 +226,15 @@ Target WCAG 2.2 AA for the interface, including text/control contrast, keyboard 
 
 Test observable outcomes and the effect's visual invariants. Do not treat mocked `ctx.arc()` call counts as proof that the art is correct.
 
-| Layer | Required evidence |
-| --- | --- |
-| Pure logic | Cover geometry for square/landscape/portrait inputs; ring radii and angle order; parameter normalization; dimensions/limits; safe filenames; state transitions and stale-import handling |
-| Rendering | Real-browser comparison against legacy captures at identical sizes/settings; 1/10/50 slices, zero/negative/positive rotation, portrait clipping, source corners revealed by rotation, transparent source |
-| Import | File picker and drop, fallback file list, same-file retry, multiple-file rejection, corrupt/unsupported input, oversized inputs, EXIF orientation, failed replacement preserves current work, rapid A→B import where A finishes last |
-| Preview | Resize and DPR changes preserve composition; no frames after settling; repeated imports/remounts do not increase scheduled work; Original comparison preserves effect settings |
-| Export | Decode the downloaded file and assert dimensions and MIME/extension; PNG and JPEG contain expected artwork; JPEG matte is correct; uses full source detail rather than preview; pending export stays consistent across later edits/imports; encoding failure is recoverable |
-| Interface | Keyboard-only import/edit/download, labels and focus, automated accessibility scan, touch layouts, text zoom, visible errors and busy states |
-| Delivery/privacy | Production build loads under `/circle-slice/`; example and all assets resolve; reload works; local import/edit/export generates no image-related network traffic or storage writes |
+| Layer            | Required evidence                                                                                                                                                                                                                                                           |
+| ---------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Pure logic       | Cover geometry for square/landscape/portrait inputs; ring radii and angle order; parameter normalization; dimensions/limits; safe filenames; state transitions and stale-import handling                                                                                    |
+| Rendering        | Real-browser comparison against legacy captures at identical sizes/settings; 1/10/50 slices, zero/negative/positive rotation, portrait clipping, source corners revealed by rotation, transparent source                                                                    |
+| Import           | File picker and drop, fallback file list, same-file retry, multiple-file rejection, corrupt/unsupported input, oversized inputs, EXIF orientation, failed replacement preserves current work, rapid A→B import where A finishes last                                        |
+| Preview          | Resize and DPR changes preserve composition; no frames after settling; repeated imports/remounts do not increase scheduled work; Original comparison preserves effect settings                                                                                              |
+| Export           | Decode the downloaded file and assert dimensions and MIME/extension; PNG and JPEG contain expected artwork; JPEG matte is correct; uses full source detail rather than preview; pending export stays consistent across later edits/imports; encoding failure is recoverable |
+| Interface        | Keyboard-only import/edit/download, labels and focus, automated accessibility scan, touch layouts, text zoom, visible errors and busy states                                                                                                                                |
+| Delivery/privacy | Production build loads under `/circle-slice/`; example and all assets resolve; reload works; local import/edit/export generates no image-related network traffic or storage writes                                                                                          |
 
 Use small generated fixtures with labeled quadrants, off-center markers, transparency, and known orientation; include the ocean image for recognizable visual comparison if its use is permitted. Keep fixtures deterministic and free of personal images.
 
@@ -266,24 +266,28 @@ M0 evidence: 108 canvas-only cases reproduce the frozen original exactly in the 
 
 Dependencies: M0.
 
-- [ ] Introduce Vite, React, strict TypeScript, npm lockfile, Node version file, ESLint, and formatter.
-- [ ] Define scripts: `dev`, `build`, `preview`, `typecheck`, `lint`, `format:check`, `test`, and `test:e2e`. Make `test` a non-watching CI run; ensure type checking is a separate required check because bundling alone is insufficient.
-- [ ] Add a minimal application shell and Vitest/Playwright configuration with one useful geometry test and production-path smoke test.
-- [ ] Move/refer to public example assets through base-aware URLs; configure Vite `base: '/circle-slice/'` for the current deployment.
-- [ ] Update ignore rules for `node_modules/`, `dist/`, coverage, browser-test artifacts, and nested Processing data/output directories.
+- [x] Introduce Vite, React, strict TypeScript, npm lockfile, Node version file, ESLint, and formatter.
+- [x] Define scripts: `dev`, `build`, `preview`, `typecheck`, `lint`, `format:check`, `test`, and `test:e2e`. Make `test` a non-watching CI run; ensure type checking is a separate required check because bundling alone is insufficient.
+- [x] Add a minimal application shell and Vitest/Playwright configuration with one useful geometry test and production-path smoke test.
+- [x] Move/refer to public example assets through base-aware URLs; configure Vite `base: '/circle-slice/'` for the current deployment.
+- [x] Update ignore rules for `node_modules/`, `dist/`, coverage, browser-test artifacts, and nested Processing data/output directories.
 
 Acceptance: clean checkout installs with `npm ci`; checks and build pass; production preview loads at `/circle-slice/`. The old implementation remains available in Git/reference fixtures until parity is verified. Preserve user changes when introducing tooling.
+
+M1 evidence: locked npm install, formatting, lint, strict type checks, seven geometry cases, and a Chromium production-path smoke test pass. The shell and generated example load directly and after refresh at `/circle-slice/`, with no overflow at 320 CSS pixels. Desktop and narrow screenshots were visually inspected; `dist/` excludes legacy/test/history material. See [validation](docs/validation.md).
 
 ### M2 — Extract a deterministic rendering core
 
 Dependencies: M1.
 
-- [ ] Implement typed settings, defaults, normalization, cover geometry, and the Classic renderer.
-- [ ] Implement stable artwork dimensions, a bounded preview surface, resize observation, and one-frame invalidation scheduling.
-- [ ] Compare real canvas output with M0 references; inspect portrait clipping, layer order, wash, transparency, and rotated-image coverage.
-- [ ] Verify cleanup under repeated mounts and image changes; assert no idle rendering.
+- [x] Implement typed settings, defaults, normalization, cover geometry, and the Classic renderer.
+- [x] Implement stable artwork dimensions, a bounded preview surface, resize observation, and one-frame invalidation scheduling.
+- [x] Compare real canvas output with M0 references; inspect portrait clipping, layer order, wash, transparency, and rotated-image coverage.
+- [x] Verify cleanup under repeated mounts and image changes; assert no idle rendering.
 
 Acceptance: equivalent input/settings/dimensions reproduce Classic within documented raster tolerances; viewport resize does not change artwork geometry. Renderer imports no UI modules and schedules no frames itself.
+
+M2 evidence: all 108 M0 references match exactly in Chromium; bounded previews preserve artwork through resize/DPR changes, coalesce updates, remain idle when clean, and cancel work on disposal. See [validation](docs/validation.md).
 
 ### M3 — Implement reliable local-image handling
 
@@ -369,20 +373,20 @@ Core release completion means M0–M7 acceptance criteria are met: Classic parit
 
 These are ideas for subsequent releases, not prerequisites for modernization. Promote one to a separate task with explicit settings, lifecycle behavior, and acceptance criteria before implementing it.
 
-| Priority | Idea | Value and implementation considerations |
-| --- | --- | --- |
-| Next | Undo/redo for settings | Encourages experimentation; group a slider drag into one action, cap history, keep image bytes out of history, clear history on source replacement |
-| Next | Curated effect presets | Quick starting points such as gentle twist and dense spiral; store explicit validated settings, preserve source and artwork size, retain Classic |
-| Next | Adjustable wash, circle size, and center | Extends the existing visual language; define normalized coordinates and radius basis, retain Classic defaults, provide numeric alternatives to dragging |
-| Next | Seeded random variations | One-click exploration with repeatable results; record the seed/algorithm version and make each action undoable |
-| Later | Two-image mixing | Directly inspired by the Processing sketches; alternate explicitly between independently cover-fitted sources, define layer/background ownership and unequal aspect ratios, budget both sources' memory |
-| Later | Export/import recipe JSON and share settings | Versioned, size-limited, validated parameters; never embed image bytes, filenames, or object URLs in a share link; recipient supplies their own image; URL fragment avoids Pages routing requirements |
-| Later | Clipboard image paste | Convenient desktop input; use the normal paste event and existing import pipeline; preserve text-input paste and keep picker/drop as primary paths |
-| Later | WebP export / transparent circle-only art | Feature-detect actual encoding; define transparency/background semantics explicitly instead of modifying Classic |
-| Later | Nonlinear ring spacing and rotation curves | Broadens artistic range; retain a versioned linear Classic preset and add geometry/pixel tests |
-| Explore | Batch processing | Apply one recipe to several files with a bounded sequential queue and progress/cancel; avoid decoding the entire batch at once |
-| Explore | Animated rotation and video export | Requires deliberate play/pause, timing, reduced-motion behavior, cancellation and browser codec work; static mode must remain idle |
-| Explore | Installable/offline app | Useful only after the core is stable; define service-worker update behavior and caching scope without storing personal images |
+| Priority | Idea                                         | Value and implementation considerations                                                                                                                                                                 |
+| -------- | -------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Next     | Undo/redo for settings                       | Encourages experimentation; group a slider drag into one action, cap history, keep image bytes out of history, clear history on source replacement                                                      |
+| Next     | Curated effect presets                       | Quick starting points such as gentle twist and dense spiral; store explicit validated settings, preserve source and artwork size, retain Classic                                                        |
+| Next     | Adjustable wash, circle size, and center     | Extends the existing visual language; define normalized coordinates and radius basis, retain Classic defaults, provide numeric alternatives to dragging                                                 |
+| Next     | Seeded random variations                     | One-click exploration with repeatable results; record the seed/algorithm version and make each action undoable                                                                                          |
+| Later    | Two-image mixing                             | Directly inspired by the Processing sketches; alternate explicitly between independently cover-fitted sources, define layer/background ownership and unequal aspect ratios, budget both sources' memory |
+| Later    | Export/import recipe JSON and share settings | Versioned, size-limited, validated parameters; never embed image bytes, filenames, or object URLs in a share link; recipient supplies their own image; URL fragment avoids Pages routing requirements   |
+| Later    | Clipboard image paste                        | Convenient desktop input; use the normal paste event and existing import pipeline; preserve text-input paste and keep picker/drop as primary paths                                                      |
+| Later    | WebP export / transparent circle-only art    | Feature-detect actual encoding; define transparency/background semantics explicitly instead of modifying Classic                                                                                        |
+| Later    | Nonlinear ring spacing and rotation curves   | Broadens artistic range; retain a versioned linear Classic preset and add geometry/pixel tests                                                                                                          |
+| Explore  | Batch processing                             | Apply one recipe to several files with a bounded sequential queue and progress/cancel; avoid decoding the entire batch at once                                                                          |
+| Explore  | Animated rotation and video export           | Requires deliberate play/pause, timing, reduced-motion behavior, cancellation and browser codec work; static mode must remain idle                                                                      |
+| Explore  | Installable/offline app                      | Useful only after the core is stable; define service-worker update behavior and caching scope without storing personal images                                                                           |
 
 ## 11. Remaining decisions
 

@@ -1,40 +1,31 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <script src="./js/gui/dat.gui.min.js"></script>
-    <script src="./js/fit.min.js"></script>
-    <script src="./js/canvas-to-image.min.js"></script>
-    <link rel="stylesheet" href="./css/reset.css">
-    <link rel="stylesheet" href="./css/main.css">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
     <title>Circle Slice</title>
-    <meta name="description" content="Clip, rotate, repeat.">
-    <meta name="image" content="https://i.imgur.com/qTPeS9X.jpg">
-    <meta itemprop="name" content="Circle Slice">
-    <meta itemprop="description" content="Clip, rotate, repeat.">
-    <meta itemprop="image" content="https://i.imgur.com/qTPeS9X.jpg">
-    <meta name="twitter:card" content="summary">
-    <meta name="twitter:title" content="Circle Slice">
-    <meta name="twitter:description" content="Clip, rotate, repeat.">
-    <meta name="twitter:site" content="@riebschlager">
-    <meta name="twitter:creator" content="@riebschlager">
-    <meta name="twitter:image:src" content="https://i.imgur.com/qTPeS9X.jpg">
-    <meta name="og:title" content="Circle Slice">
-    <meta name="og:description" content="Clip, rotate, repeat.">
-    <meta name="og:image" content="https://i.imgur.com/qTPeS9X.jpg">
-    <meta name="og:site_name" content="Circle Slice">
-    <meta name="og:type" content="website">
-</head>
+    <meta name="description" content="Clip, rotate, repeat." />
+    <meta name="image" content="https://i.imgur.com/qTPeS9X.jpg" />
+    <meta itemprop="name" content="Circle Slice" />
+    <meta itemprop="description" content="Clip, rotate, repeat." />
+    <meta itemprop="image" content="https://i.imgur.com/qTPeS9X.jpg" />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="Circle Slice" />
+    <meta name="twitter:description" content="Clip, rotate, repeat." />
+    <meta name="twitter:site" content="@riebschlager" />
+    <meta name="twitter:creator" content="@riebschlager" />
+    <meta name="twitter:image:src" content="https://i.imgur.com/qTPeS9X.jpg" />
+    <meta name="og:title" content="Circle Slice" />
+    <meta name="og:description" content="Clip, rotate, repeat." />
+    <meta name="og:image" content="https://i.imgur.com/qTPeS9X.jpg" />
+    <meta name="og:site_name" content="Circle Slice" />
+    <meta name="og:type" content="website" />
+  </head>
 
-<body ondrop="dropHandler(event);" ondragover="dragOverHandler(event);">
-    <canvas id="canvas"></canvas>
-    <div id="intro">
-        DRAG YOUR OWN IMAGE ONTO THE CANVAS
-    </div>
-    <script src="./js/main.js"></script>
-</body>
-
+  <body>
+    <div id="root"></div>
+    <noscript>Enable JavaScript to use Circle Slice.</noscript>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
 </html>
