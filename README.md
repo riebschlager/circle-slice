@@ -104,10 +104,19 @@ npx playwright install chromium
 npm run test:e2e
 ```
 
-## Deployment
+## Deployment & CI/CD
 
-Circle Slice is deployed to GitHub Pages at `https://riebschlager.github.io/circle-slice/`.
+Circle Slice is deployed to GitHub Pages at `https://riebschlager.github.io/circle-slice/` using GitHub Actions (`.github/workflows/deploy.yml`).
 
-Production builds are compiled with `base: '/circle-slice/'` into `dist/`. The deployment bundle contains only static application assets (`index.html`, bundled JavaScript and CSS, local examples, and social preview assets). Historical sketches, reference baselines, and test tooling are excluded from the published site.
+### CI/CD Workflow
 
-See [MODERNIZATION_PLAN.md](MODERNIZATION_PLAN.md) and [docs/architecture.md](docs/architecture.md) for architectural records and design decisions.
+- **Pull Requests:** Every pull request targeting `master` runs the `verify` job: locked install (`npm ci`), Prettier formatting check, ESLint, strict TypeScript checking, unit tests (Vitest), and end-to-end browser tests (Playwright Chromium against the production build). Pull requests are read-only and never deploy.
+- **Production Deployment:** Pushes to `master` (and manual `workflow_dispatch`) run the `verify` suite first. Upon successful verification, the `deploy` job packages `dist/` and deploys it to GitHub Pages using the official `actions/deploy-pages` action under the `github-pages` environment with concurrency control.
+- **Minimal Artifact:** Production builds are compiled with `base: '/circle-slice/'` into `dist/`. The deployed bundle contains only static application assets (`index.html`, bundled JavaScript and CSS, local examples, and social preview assets). Historical Processing sketches, test references/fixtures, and development configurations are strictly excluded from the site artifact.
+
+### Rollback
+
+- **Legacy 2018 site:** The pre-modernization commit is archived at `origin/gh-pages` (`5162ee4`). GitHub Pages can be restored to branch hosting via the GitHub API (`build_type: "legacy"` pointing to `gh-pages`).
+- **Modern release rollback:** Revert the commit on `master` and push to trigger automated verification and redeployment.
+
+See [MODERNIZATION_PLAN.md](MODERNIZATION_PLAN.md) and [docs/architecture.md](docs/architecture.md) for architectural records, validation benchmarks, and design decisions.

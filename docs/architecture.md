@@ -47,3 +47,45 @@ The `.pde` files under `p5/` are Processing/Java sketches, **not browser p5.js**
 `renderClassic` receives a borrowed source, its full decoded dimensions, artwork size, settings, and a context. It computes cover geometry once, resets drawing state, preserves the caller's context with balanced save/restore, and never schedules work. Supply a fresh/unclipped context; an inherited clip cannot be removed by resetting the transform. The same renderer can later draw a full-resolution export surface.
 
 `createPreview` owns a ResizeObserver, a re-armed DPR media query, and at most one pending animation frame. Updates copy the latest settings/dimensions and borrow the latest source. Disposal disconnects both observers, cancels the frame, drops references, and releases the backing surface. The caller owns image disposal. `ExamplePreview` manages the bundled image and guards asynchronous completion across React StrictMode cleanup/remount. The 800 × 600 example is already within preview limits; arbitrary input decoding and bounded source caches remain M3. Canvas backing size is independent of artwork size and capped at 2 MP / DPR 2. Subpixel padding absorbs backing-size rounding with one uniform render transform.
+
+## Deployment and delivery architecture
+
+M7 establishes automated CI/CD using GitHub Actions (`.github/workflows/deploy.yml`) and publishes static assets to GitHub Pages.
+
+### CI/CD pipeline and permissions boundary
+
+The workflow is split into two distinct jobs to enforce the principle of least privilege:
+
+1. **`verify` (PR & Push CI):**
+   - Triggers on pull requests and pushes targeting `master`, as well as manual dispatches.
+   - Runs in `ubuntu-latest` with Node `24.20.0` (matching `.nvmrc`) and cached npm dependencies.
+   - Executes the complete test pyramid: `npm ci`, `npm run format:check`, `npm run lint`, `npm run typecheck`, `npm test` (unit tests), and `npm run test:e2e` (Playwright tests on Chromium against the production build).
+   - Top-level workflow permissions are strictly `contents: read`. PR builds never have access to deployment tokens or Pages write permissions.
+   - Test artifacts (`playwright-report/` and `test-results/`) are uploaded on failure for rapid diagnosis.
+
+2. **`deploy` (Production Pages Deployment):**
+   - Strictly gated by `needs: verify` so failed or untested code cannot reach production.
+   - Evaluates only on the default branch (`refs/heads/master`) during `push` or `workflow_dispatch` events. Pull requests never deploy.
+   - Scopes elevated permissions strictly to the deployment job: `contents: read`, `pages: write`, `id-token: write`.
+   - Uses the GitHub Pages deployment environment (`name: github-pages`) with concurrency control (`group: 'pages'`, `cancel-in-progress: false`) to ensure sequential, uninterruptible artifact rollouts.
+   - Compiles fresh production assets via `npm run build` into `dist/`.
+   - Uses official GitHub actions (`actions/configure-pages@v5`, `actions/upload-pages-artifact@v3`, `actions/deploy-pages@v4`) to publish `dist/` only. Historical sketches (`p5/`), test fixtures (`tests/`), and development configurations are strictly excluded from the site artifact.
+
+### Rollback procedures
+
+Two rollback paths exist depending on the failure mode:
+
+1. **Rollback to legacy 2018 deployment:**
+   - The legacy pre-modernization commit is permanently preserved on the remote branch `origin/gh-pages` at `5162ee42862b2c6b6238e3a20118ac6407c8b3f9`.
+   - To immediately restore the legacy site, switch GitHub Pages back to legacy branch hosting via GitHub API or repo settings:
+     ```sh
+     curl -X PUT -H "Authorization: Bearer <TOKEN>" \
+       -H "Accept: application/vnd.github+json" \
+       https://api.github.com/repos/riebschlager/circle-slice/pages \
+       -d '{"build_type":"legacy","source":{"branch":"gh-pages","path":"/"}}'
+     ```
+
+2. **Rollback to a previous modern release:**
+   - Revert the problematic commit on `master` (`git revert <commit>`) and push to `master`.
+   - The `CI / Deploy Pages` workflow will automatically run the verification suite and publish the reverted build.
+   - Alternatively, trigger manual redeployment of a specific known-good commit via `workflow_dispatch`.

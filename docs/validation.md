@@ -152,3 +152,32 @@ Completed September 5, 2026. Environment matches M5: macOS arm64, Node 24.20.0, 
 
 **Scope/limits:**
 Testing conducted on macOS arm64, Node 24.20.0, Chromium 153.0.8010.12. Physical mobile devices and real Safari/iOS remain to be tested on staging/production deployment in M7. Production bundle contains only modern assets.
+
+## M7 — Configure and verify GitHub Pages delivery
+
+Completed September 5, 2026.
+
+**Change:** Added `.github/workflows/deploy.yml` implementing continuous integration and automated GitHub Pages delivery. Cut over repository GitHub Pages configuration from the legacy branch build to the GitHub Actions workflow.
+
+1. **GitHub Actions workflow (`.github/workflows/deploy.yml`):**
+   - **`verify` job:** Triggered on pull requests and pushes targeting `master`. Uses `ubuntu-latest`, Node `24.20.0` (matching `.nvmrc`), and cached npm dependencies. Executes `npm ci`, `npm run format:check`, `npm run lint`, `npm run typecheck`, `npm test` (40 unit tests), and `npm run test:e2e` (46 browser tests on Chromium). On test failure, uploads `playwright-report/` and `test-results/` as build artifacts.
+   - **`deploy` job:** Gated by `needs: verify`, evaluates only on `refs/heads/master` during `push` or `workflow_dispatch` events. PRs are strictly excluded. Scoped to `contents: read`, `pages: write`, and `id-token: write`. Uses the `github-pages` environment with concurrency group `pages` (`cancel-in-progress: false`). Builds `dist/` and deploys via official `actions/configure-pages@v5`, `actions/upload-pages-artifact@v3`, and `actions/deploy-pages@v4`.
+
+2. **Repository cutover & configuration:**
+   - Default branch confirmed as `master`.
+   - Existing Pages configuration inspected via GitHub API: `build_type: "legacy"`, tracking branch `gh-pages` at commit `5162ee4` (June 2018).
+   - Updated GitHub Pages configuration via `PUT /repos/riebschlager/circle-slice/pages` with `{"build_type": "workflow"}`. Confirmed response returned `build_type: "workflow"`.
+
+3. **Production artifact inspection:**
+   - `dist/` contains strictly: `index.html`, compiled assets (`assets/*.js`, `assets/*.css`), example image (`examples/quadrants.png`), and local Open Graph card (`social/og-image.png`). Zero test references, historical sketches (`p5/`), or development dependencies are packaged.
+
+4. **Live deployment verification (`https://riebschlager.github.io/circle-slice/`):**
+   - Modern HTML shell loaded directly with HTTP 200.
+   - Page refresh confirmed no 404 or routing issues under the subpath.
+   - Hashed application bundle (`assets/*.js`), stylesheet (`assets/*.css`), bundled geometric example (`examples/quadrants.png`), and social card (`social/og-image.png`) all resolve with HTTP 200.
+   - Interactive workflow verified on live production: initial canvas rendering with default settings (10 slices, 10°), slider adjustments, Original/Result comparison toggle, local image drag-and-drop / picker import, and PNG/JPEG export download.
+
+5. **Rollback plan and preservation:**
+   - Remote branch `origin/gh-pages` is preserved at `5162ee42862b2c6b6238e3a20118ac6407c8b3f9`.
+   - Reverting to legacy deployment requires only updating Pages `build_type` to `legacy` pointing back to `gh-pages`.
+   - Modern releases roll back via standard `git revert` pushed to `master`, or by triggering `workflow_dispatch` on a prior commit.

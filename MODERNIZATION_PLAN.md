@@ -1,6 +1,6 @@
 # Circle Slice modernization plan
 
-Status: M0–M6 complete (September 5, 2026); M7 is next. Reference capture, build validation, performance benchmarks, and decisions are recorded in `docs/validation.md` and `docs/architecture.md`. Production deployment remains M7.
+Status: M0–M7 complete (September 5, 2026). Continuous integration, automated testing, and GitHub Pages delivery are active via GitHub Actions. Reference capture, build validation, performance benchmarks, and decisions are recorded in `docs/validation.md` and `docs/architecture.md`. Production deployment is verified.
 
 Prepared: September 5, 2026. Repository reviewed at `5162ee4` (`change og image`).
 
@@ -345,17 +345,19 @@ M6 evidence: Added `tests/browser/perf.spec.ts` testing 12 MP (4000 × 3000) sli
 
 Dependencies: M6. CI checks may be introduced earlier; production cutover follows core validation.
 
-- [ ] Add PR CI running locked install, formatting check, lint, typecheck, unit tests, production build, and browser tests against the built app. Upload failure traces/diffs as artifacts.
-- [ ] Inspect the repository's actual default branch and existing Pages source/settings. Configure Pages to use GitHub Actions when publishing the modernization; do not assume the current branch name or hosting mode.
-- [ ] Add default-branch/manual deployment with successful verification as a dependency, the `github-pages` environment, and concurrency protection against obsolete deployments.
-- [ ] Use the official configure/upload/deploy Pages actions with currently supported releases. Keep normal CI at read-only contents permissions; scope `pages: write` and `id-token: write` to deployment. PRs must not deploy.
-- [ ] Publish `dist/` only. Keep historical sketches, test fixtures/harnesses, and development files out of the site artifact.
-- [ ] Confirm the deployed `/circle-slice/` URL loads directly and on refresh; verify asset paths, local import, controls, and download on the real site.
-- [ ] Document rollback: revert to a known-good source revision and redeploy through its working workflow; preserve the former Pages configuration details for rollback from the first cutover.
+- [x] Add PR CI running locked install, formatting check, lint, typecheck, unit tests, production build, and browser tests against the built app. Upload failure traces/diffs as artifacts.
+- [x] Inspect the repository's actual default branch and existing Pages source/settings. Configure Pages to use GitHub Actions when publishing the modernization; do not assume the current branch name or hosting mode.
+- [x] Add default-branch/manual deployment with successful verification as a dependency, the `github-pages` environment, and concurrency protection against obsolete deployments.
+- [x] Use the official configure/upload/deploy Pages actions with currently supported releases. Keep normal CI at read-only contents permissions; scope `pages: write` and `id-token: write` to deployment. PRs must not deploy.
+- [x] Publish `dist/` only. Keep historical sketches, test fixtures/harnesses, and development files out of the site artifact.
+- [x] Confirm the deployed `/circle-slice/` URL loads directly and on refresh; verify asset paths, local import, controls, and download on the real site.
+- [x] Document rollback: revert to a known-good source revision and redeploy through its working workflow; preserve the former Pages configuration details for rollback from the first cutover.
 
 Vite requires the project subpath in `base` for this URL. GitHub documents the Pages artifact workflow and deployment permissions. Follow those guides at implementation time rather than copying stale action versions. [Vite Pages deployment](https://vite.dev/guide/static-deploy#github-pages), [GitHub custom Pages workflows](https://docs.github.com/en/pages/getting-started-with-github-pages/using-custom-workflows-with-github-pages).
 
 Acceptance: only verified default-branch/manual builds publish; the public site performs the complete local-image workflow; setup and rollback are documented. If repository settings/permissions are unavailable, deliver the finished workflow and exact remaining setup step, and mark live deployment verification pending rather than claiming completion.
+
+M7 evidence: Added unified GitHub Actions workflow `.github/workflows/deploy.yml` with separate `verify` (locked install, format check, lint, typecheck, unit tests, Playwright Chromium suite, artifact upload on failure) and `deploy` jobs (`needs: verify`, gated strictly to default branch `master` push or `workflow_dispatch`, read-only permissions elevated to `pages: write` and `id-token: write` only for deployment, `github-pages` environment with concurrency protection). Cut over repository GitHub Pages configuration from legacy `gh-pages` branch build to GitHub Actions workflow (`build_type: "workflow"`). Pushed to `master` and verified GitHub Actions CI/CD run. Verified live site `https://riebschlager.github.io/circle-slice/` directly and on refresh: HTML entry, modern stylesheet and script assets, local example and social assets resolve (HTTP 200). Verified complete interactive workflow on live deployment: image load, effect controls, comparison toggle, and full-resolution export. Preserved legacy rollback point (`origin/gh-pages` at `5162ee4`) and documented rollback procedures in `docs/architecture.md` and `docs/validation.md`.
 
 ## 9. Agent handoff and completion rules
 
