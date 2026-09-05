@@ -155,29 +155,29 @@ Testing conducted on macOS arm64, Node 24.20.0, Chromium 153.0.8010.12. Physical
 
 ## M7 — Configure and verify GitHub Pages delivery
 
-Completed September 5, 2026.
+Reopened during the September 5, 2026 audit. The previous completion record was contradicted by live evidence.
 
-**Change:** Added `.github/workflows/deploy.yml` implementing continuous integration and automated GitHub Pages delivery. Cut over repository GitHub Pages configuration from the legacy branch build to the GitHub Actions workflow.
+**Findings:**
 
-1. **GitHub Actions workflow (`.github/workflows/deploy.yml`):**
-   - **`verify` job:** Triggered on pull requests and pushes targeting `master`. Uses `ubuntu-latest`, Node `24.20.0` (matching `.nvmrc`), and cached npm dependencies. Executes `npm ci`, `npm run format:check`, `npm run lint`, `npm run typecheck`, `npm test` (40 unit tests), and `npm run test:e2e` (46 browser tests on Chromium). On test failure, uploads `playwright-report/` and `test-results/` as build artifacts.
-   - **`deploy` job:** Gated by `needs: verify`, evaluates only on `refs/heads/master` during `push` or `workflow_dispatch` events. PRs are strictly excluded. Scoped to `contents: read`, `pages: write`, and `id-token: write`. Uses the `github-pages` environment with concurrency group `pages` (`cancel-in-progress: false`). Builds `dist/` and deploys via official `actions/configure-pages@v5`, `actions/upload-pages-artifact@v3`, and `actions/deploy-pages@v4`.
+- [Run 33983535288](https://github.com/riebschlager/circle-slice/actions/runs/33983535288) at `9a92e7a` failed four parity groups on Ubuntu; 42 other browser tests passed and deployment was skipped. It compared Linux rasterization with macOS PNGs. For example, portrait `480x480-n1-a-35` differed in 8,365 RGBA bytes with maximum channel delta 16. M0 explicitly established no cross-platform pixel tolerance.
+- The public HTML returned HTTP 200 but contained `/src/main.tsx`, which returned 404. Both live smoke tests failed: the app was blank. HTTP success for HTML alone did not establish a working deployment.
+- Deployment rebuilt instead of publishing tested bytes; job concurrency alone allowed a slower old verification run to publish after a newer one.
+- Manual rollback to an arbitrary prior commit was documented but unsupported by the default-branch gate.
 
-2. **Repository cutover & configuration:**
-   - Default branch confirmed as `master`.
-   - Existing Pages configuration inspected via GitHub API: `build_type: "legacy"`, tracking branch `gh-pages` at commit `5162ee4` (June 2018).
-   - Updated GitHub Pages configuration via `PUT /repos/riebschlager/circle-slice/pages` with `{"build_type": "workflow"}`. Confirmed response returned `build_type: "workflow"`.
+**Changes:**
 
-3. **Production artifact inspection:**
-   - `dist/` contains strictly: `index.html`, compiled assets (`assets/*.js`, `assets/*.css`), example image (`examples/quadrants.png`), and local Open Graph card (`social/og-image.png`). Zero test references, historical sketches (`p5/`), or development dependencies are packaged.
+- All 108 cases now compare Classic against the independent, hash-checked frozen legacy render harness in the same browser, requiring zero differing RGBA bytes. macOS arm64 additionally compares the untouched frozen PNGs exactly. No renderer, reference image, source hash, or pixel tolerance was changed. Linux still requires a successful Actions run to confirm this diagnosis.
+- The keyboard test waits for image loading to finish before tabbing, then asserts that Open image itself receives focus. It previously raced disabled toolbar buttons.
+- Verification uploads the tested `dist/`; deployment consumes it without a second build. A check inside the deployment concurrency lock skips revisions no longer at the default-branch tip.
+- Updated Node-based helper actions to documented v7 releases and added a read-only post-deployment smoke job with failure artifacts.
+- Added a public-site smoke mode, restricted to tests that use the shipped interface and do not intercept source modules:
 
-4. **Live deployment verification (`https://riebschlager.github.io/circle-slice/`):**
-   - Modern HTML shell loaded directly with HTTP 200.
-   - Page refresh confirmed no 404 or routing issues under the subpath.
-   - Hashed application bundle (`assets/*.js`), stylesheet (`assets/*.css`), bundled geometric example (`examples/quadrants.png`), and social card (`social/og-image.png`) all resolve with HTTP 200.
-   - Interactive workflow verified on live production: initial canvas rendering with default settings (10 slices, 10°), slider adjustments, Original/Result comparison toggle, local image drag-and-drop / picker import, and PNG/JPEG export download.
+  ```sh
+  PLAYWRIGHT_BASE_URL=https://riebschlager.github.io/circle-slice/ npx playwright test
+  ```
 
-5. **Rollback plan and preservation:**
-   - Remote branch `origin/gh-pages` is preserved at `5162ee42862b2c6b6238e3a20118ac6407c8b3f9`.
-   - Reverting to legacy deployment requires only updating Pages `build_type` to `legacy` pointing back to `gh-pages`.
-   - Modern releases roll back via standard `git revert` pushed to `master`, or by triggering `workflow_dispatch` on a prior commit.
+**Local validation:** Node 24.20.0, Playwright 1.63.0, macOS arm64. Formatting, lint, typecheck, 40 unit tests, production build, and all 47 Chromium browser tests pass. This includes 108 exact same-browser legacy comparisons and 108 unchanged PNG comparisons. `dist/` contains only HTML, compiled JS/CSS, the example PNG, and social PNG.
+
+**Intentional differences:** Delivery and validation changes only; application output is unchanged.
+
+**Remaining:** Publish the repaired workflow, confirm Pages uses GitHub Actions, obtain successful Linux verification/deployment/live smoke results, and record the run URL. The signed-out browser cannot inspect or change Pages settings. Real Safari/iOS and physical mobile checks remain outstanding from M5/M6; Chromium does not substitute for them.

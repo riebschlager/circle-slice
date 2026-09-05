@@ -111,8 +111,16 @@ Circle Slice is deployed to GitHub Pages at `https://riebschlager.github.io/circ
 ### CI/CD Workflow
 
 - **Pull Requests:** Every pull request targeting `master` runs the `verify` job: locked install (`npm ci`), Prettier formatting check, ESLint, strict TypeScript checking, unit tests (Vitest), and end-to-end browser tests (Playwright Chromium against the production build). Pull requests are read-only and never deploy.
-- **Production Deployment:** Pushes to `master` (and manual `workflow_dispatch`) run the `verify` suite first. Upon successful verification, the `deploy` job packages `dist/` and deploys it to GitHub Pages using the official `actions/deploy-pages` action under the `github-pages` environment with concurrency control.
+- **Production Deployment:** Pushes to `master` (and manual `workflow_dispatch`) run the `verify` suite first. Upon successful verification, the `verify` job uploads its tested `dist/` and the `deploy` job deploys it without rebuilding to GitHub Pages using the official `actions/deploy-pages` action under the `github-pages` environment with concurrency control.
 - **Minimal Artifact:** Production builds are compiled with `base: '/circle-slice/'` into `dist/`. The deployed bundle contains only static application assets (`index.html`, bundled JavaScript and CSS, local examples, and social preview assets). Historical Processing sketches, test references/fixtures, and development configurations are strictly excluded from the site artifact.
+
+Pages must use **Settings → Pages → Build and deployment → Source: GitHub Actions**. Deployments skip superseded commits, and a read-only post-deployment job verifies the public import/edit/download workflow. Manual dispatch must target `master` and deploys its current tip.
+
+Run the public-site checks independently with:
+
+```sh
+PLAYWRIGHT_BASE_URL=https://riebschlager.github.io/circle-slice/ npx playwright test
+```
 
 ### Rollback
 

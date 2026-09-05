@@ -50,42 +50,19 @@ The `.pde` files under `p5/` are Processing/Java sketches, **not browser p5.js**
 
 ## Deployment and delivery architecture
 
-M7 establishes automated CI/CD using GitHub Actions (`.github/workflows/deploy.yml`) and publishes static assets to GitHub Pages.
+M7 uses `.github/workflows/deploy.yml`. The default branch was rechecked as `master` on September 5, 2026. Pages must use **Settings → Pages → Build and deployment → Source: GitHub Actions**. The audit found the live site serving unbuilt source HTML; the previous record claiming a verified cutover was incorrect. See [validation](validation.md#m7--configure-and-verify-github-pages-delivery) for current rollout status.
 
-### CI/CD pipeline and permissions boundary
+### Verification and artifact ownership
 
-The workflow is split into two distinct jobs to enforce the principle of least privilege:
+The read-only `verify` job runs locked install, formatting, lint, strict type checks, unit tests, and Chromium tests against the production build. Only a successful push/manual run on `master` uploads that exact `dist/` with `actions/upload-pages-artifact@v3`. PRs run checks but cannot publish a Pages artifact or deploy.
 
-1. **`verify` (PR & Push CI):**
-   - Triggers on pull requests and pushes targeting `master`, as well as manual dispatches.
-   - Runs in `ubuntu-latest` with Node `24.20.0` (matching `.nvmrc`) and cached npm dependencies.
-   - Executes the complete test pyramid: `npm ci`, `npm run format:check`, `npm run lint`, `npm run typecheck`, `npm test` (unit tests), and `npm run test:e2e` (Playwright tests on Chromium against the production build).
-   - Top-level workflow permissions are strictly `contents: read`. PR builds never have access to deployment tokens or Pages write permissions.
-   - Test artifacts (`playwright-report/` and `test-results/`) are uploaded on failure for rapid diagnosis.
+The `deploy` job depends on verification and uses `actions/configure-pages@v5` and `actions/deploy-pages@v4`, without rebuilding. Only this job receives `pages: write` and `id-token: write`. The `github-pages` environment and `pages` concurrency group serialize rollouts without cancelling an in-flight deployment. Inside that lock, a read-only API check compares the run SHA with the current `master` SHA and skips superseded revisions. This prevents a slower old verification run from overwriting a newer deployment. A push arriving after the check can still cause a brief older rollout before its own verified deployment.
 
-2. **`deploy` (Production Pages Deployment):**
-   - Strictly gated by `needs: verify` so failed or untested code cannot reach production.
-   - Evaluates only on the default branch (`refs/heads/master`) during `push` or `workflow_dispatch` events. Pull requests never deploy.
-   - Scopes elevated permissions strictly to the deployment job: `contents: read`, `pages: write`, `id-token: write`.
-   - Uses the GitHub Pages deployment environment (`name: github-pages`) with concurrency control (`group: 'pages'`, `cancel-in-progress: false`) to ensure sequential, uninterruptible artifact rollouts.
-   - Compiles fresh production assets via `npm run build` into `dist/`.
-   - Uses official GitHub actions (`actions/configure-pages@v5`, `actions/upload-pages-artifact@v3`, `actions/deploy-pages@v4`) to publish `dist/` only. Historical sketches (`p5/`), test fixtures (`tests/`), and development configurations are strictly excluded from the site artifact.
+A separate read-only `smoke` job checks the returned public URL: direct load, refresh, assets, narrow layout, local file picker, effect controls, comparison, and PNG/JPEG downloads decoded at the displayed dimensions. Failed browser checks upload traces and screenshots. A smoke failure reports failure after deployment; it does not automatically roll back.
+
+Checkout, Node setup, and diagnostic artifact actions use their documented v7 releases. Official guidance: [Pages workflows](https://docs.github.com/en/pages/getting-started-with-github-pages/using-custom-workflows-with-github-pages), [deployment concurrency](https://docs.github.com/en/actions/how-tos/deploy/configure-and-manage-deployments/control-deployments), [checkout](https://github.com/actions/checkout), [setup-node](https://github.com/actions/setup-node), and [upload-artifact](https://github.com/actions/upload-artifact).
 
 ### Rollback procedures
 
-Two rollback paths exist depending on the failure mode:
-
-1. **Rollback to legacy 2018 deployment:**
-   - The legacy pre-modernization commit is permanently preserved on the remote branch `origin/gh-pages` at `5162ee42862b2c6b6238e3a20118ac6407c8b3f9`.
-   - To immediately restore the legacy site, switch GitHub Pages back to legacy branch hosting via GitHub API or repo settings:
-     ```sh
-     curl -X PUT -H "Authorization: Bearer <TOKEN>" \
-       -H "Accept: application/vnd.github+json" \
-       https://api.github.com/repos/riebschlager/circle-slice/pages \
-       -d '{"build_type":"legacy","source":{"branch":"gh-pages","path":"/"}}'
-     ```
-
-2. **Rollback to a previous modern release:**
-   - Revert the problematic commit on `master` (`git revert <commit>`) and push to `master`.
-   - The `CI / Deploy Pages` workflow will automatically run the verification suite and publish the reverted build.
-   - Alternatively, trigger manual redeployment of a specific known-good commit via `workflow_dispatch`.
+- **Modern release:** Revert the problematic source changes on `master`, retaining the repaired workflow and test harness, then push. The restored source is verified, deployed, and smoke-tested. Manual dispatch on `master` redeploys its current tip; it cannot deploy an arbitrary historical SHA or another branch. To restore older source, commit that restoration on `master` first.
+- **Legacy site:** The remote `gh-pages` branch was rechecked at `5162ee42862b2c6b6238e3a20118ac6407c8b3f9`. Select “Deploy from a branch”, `gh-pages`, and `/ (root)` in Pages settings, save, and verify the resulting deployment. A branch can move; verify its SHA before using it for rollback. The earlier plan recorded this as the pre-cutover configuration, but its cutover claims were not reliable.

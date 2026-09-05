@@ -159,20 +159,13 @@ test('selecting the square preset changes artwork to square dimensions', async (
 
 test('Open image button in toolbar is keyboard reachable', async ({ page }) => {
   await page.goto('./');
+  const open = page
+    .getByRole('toolbar')
+    .getByRole('button', { name: 'Open image', exact: true });
+  await expect(page.getByRole('status')).toContainText('Classic');
+  await expect(open).toBeEnabled();
   await page.keyboard.press('Tab');
-  // Tab through until focus reaches a button
-  for (let i = 0; i < 10; i++) {
-    const focused = await page.evaluate(() => document.activeElement?.tagName);
-    if (focused === 'BUTTON') break;
-    await page.keyboard.press('Tab');
-  }
-  const focused = await page.evaluate(
-    () => document.activeElement?.textContent?.trim() ?? '',
-  );
-  // At least one of the tabbable elements early in the page is a button
-  expect(
-    ['Open image', 'Reset effect', 'Download'].some((t) => focused.includes(t)),
-  ).toBe(true);
+  await expect(open).toBeFocused();
 });
 
 // ─── No horizontal scroll at 320px ───────────────────────────────────────────

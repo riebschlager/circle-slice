@@ -1,4 +1,5 @@
 import { expect, test, type Page } from '@playwright/test';
+import { createHash } from 'node:crypto';
 import { readFile } from 'node:fs/promises';
 import ts from 'typescript';
 import manifest from '../reference/manifest.json' with { type: 'json' };
@@ -26,7 +27,26 @@ for (const source of ['sea', 'quadrants', 'portrait', 'transparent']) {
     page,
   }) => {
     await modules(page);
+    const oraclePaths = [
+      'tests/reference/legacy/fit.min.js',
+      'tests/reference/render.js',
+    ] as const;
+    for (const path of oraclePaths) {
+      const bytes = await readFile(path);
+      expect(createHash('sha256').update(bytes).digest('hex')).toBe(
+        manifest.sources[path],
+      );
+    }
+    await page.route('**/__oracle/render.js', (route) =>
+      route.fulfill({
+        path: 'tests/reference/render.js',
+        contentType: 'text/javascript',
+      }),
+    );
     await page.goto('./');
+    await page.addScriptTag({
+      content: await readFile('tests/reference/legacy/fit.min.js', 'utf8'),
+    });
     const sourceBytes = await readFile(
       source === 'sea' ? 'img/sea.jpg' : `tests/fixtures/${source}.png`,
     );
@@ -43,9 +63,12 @@ for (const source of ['sea', 'quadrants', 'portrait', 'transparent']) {
           const image = new Image();
           image.src = sourceURL;
           await image.decode();
-          const expected = new Image();
-          expected.src = baselineURL;
-          await expected.decode();
+          const oracleURL = './__oracle/render.js';
+          const { renderLegacy } = await import(/* @vite-ignore */ oracleURL);
+          const expected = document.createElement('canvas');
+          expected.width = entry.width;
+          expected.height = entry.height;
+          renderLegacy(expected, image, entry.steps, entry.rotate);
           const canvas = document.createElement('canvas');
           canvas.width = entry.width;
           canvas.height = entry.height;
@@ -80,15 +103,41 @@ for (const source of ['sea', 'quadrants', 'portrait', 'transparent']) {
             if (delta) different++;
             maxDelta = Math.max(maxDelta, delta);
           }
-          return { different, maxDelta };
+          // PNGs remain an additional exact check on their capture platform.
+          let frozenDifferent = 0;
+          if (baselineURL) {
+            const frozen = new Image();
+            frozen.src = baselineURL;
+            await frozen.decode();
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.drawImage(frozen, 0, 0);
+            const pixels = ctx.getImageData(
+              0,
+              0,
+              canvas.width,
+              canvas.height,
+            ).data;
+            for (let i = 0; i < actual.length; i++) {
+              if (actual[i] !== pixels[i]) frozenDifferent++;
+            }
+          }
+          return { different, maxDelta, frozenDifferent };
         },
         {
           entry,
           sourceURL: `data:image/${source === 'sea' ? 'jpeg' : 'png'};base64,${sourceBytes.toString('base64')}`,
-          baselineURL: `data:image/png;base64,${baseline.toString('base64')}`,
+          baselineURL:
+            process.platform === manifest.environment.platform &&
+            process.arch === manifest.environment.arch
+              ? `data:image/png;base64,${baseline.toString('base64')}`
+              : '',
         },
       );
-      expect(result, entry.id).toEqual({ different: 0, maxDelta: 0 });
+      expect(result, entry.id).toEqual({
+        different: 0,
+        maxDelta: 0,
+        frozenDifferent: 0,
+      });
     }
   });
 }
